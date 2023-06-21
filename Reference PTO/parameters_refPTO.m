@@ -89,9 +89,9 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     % RO module parameters
     par.p_perm = par.p_o;
     par.p_osm = 2.7e6;
-    par.Sro = 5000; % [m^3]
+    par.Sro = 3000; % [m^3]
     par.Aperm = 2.57e-12; % [m^3/(N-s)] permeabiity coefficient (Yu and Jenne,2018)
-    par.Y = 0.4;
+    par.Y = 0.25;
 
     % ERU
     par.eta_ERUv = 0.95;

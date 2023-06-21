@@ -41,17 +41,10 @@ function out = sim_refPTO(y0,par)
 % Define indicies of state vector
 iyp_a = [];
 iyp_b = [];
-iyp_aout = [];
-iyp_bout = [];
-
-iyq_a = [];
-iyq_b = [];
 
 iyp_l = [];
 iyp_h = [];
 iyp_ro = [];
-
-iyw_pm = [];
 
 iyp_filt = [];
 iy_errInt_p_filt = [];
@@ -99,7 +92,6 @@ stateIndex_refPTO % load state indices
     
     out.control.p_filt = y(itVec,iyp_filt);
     out.control.errInt_p_filt = y(itVec,iy_errInt_p_filt);
-    out.control.errInt_w_pm = y(itVec,iy_errInt_w_pm);
     
     out.theta = y(itVec,iytheta); % [rad] position of the WEC
     out.theta_dot = y(itVec,iytheta_dot); % [rad/s] angular velocity of the WEC
