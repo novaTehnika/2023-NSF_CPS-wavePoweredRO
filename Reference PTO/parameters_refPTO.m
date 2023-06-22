@@ -55,8 +55,11 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par = parameters_WECmodel(par,filenameCoeff,filenameRadSS);
 
     % WEC-pump
+    par.theta_max = pi/2; % [rad] maximum stroke (plus and minus) from upright poistion
      % pumping chamber
     par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
+    V_wecPumpTotal = 2*par.theta_max*par.D_WEC;
+    par.V_wecDead = V_wecPumpTotal/2*(0.2); % [m^3] dead volume attached to each port (a and b) of the WEC-driven pump
     par.eta_v_WEC = 1;
     par.eta_m_WEC = 0.9;                % Flap pump mechanical efficiency
 
@@ -94,6 +97,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.Y = 0.25;
 
     % ERU
+    par.ERUconfig = 1;
     par.eta_ERUv = 0.95;
     par.eta_ERUm = 0.95;
     
@@ -144,6 +148,14 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
      % PI control of w_pm using T_gen
     par.control.wpm_ctrl.kp = 1e3;
     par.control.wpm_ctrl.ki = 2e5;
+
+    % RO inlet valve for pressure ripple reduction
+    par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
+    par.rvConfig = (1)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
+    dp_rated = 1e5; % [Pa] 
+    q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
+    par.kv_rv = q_rated/dp_rated;
+    par.control.dpdt_ROmax = (10)*6894.76;
     
     % Charging system (Intake & Boost pump)
     par.cn = 7;
@@ -151,7 +163,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.w_c = (3600)*2*pi/60; % [(rpm) -> rad/s]
     par.eta_c = 0.7;  % pumping efficiency of pressure boost pump
     par.eta_m = 0.9;  % efficiency of charge pump motor
-    par.p_tank = .65e6;
+    % par.p_c = .65e6;
 
     % Pressure relief valves
          % WEC-driven pump chamber 'a'

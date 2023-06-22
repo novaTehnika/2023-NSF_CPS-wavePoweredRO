@@ -79,9 +79,17 @@ stateIndex_refPTO % load state indices, provides 'iy_...'
 initialConditionDefault_refPTO % default ICs, provides 'y0'
 
 %% Special modifications to base parameters
-par.Sro = 5000; % [m^3]
-par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-par.control.p_hout_nom = 7e6; % [Pa]
+% par.Sro = 3000; % [m^3]
+% par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
+% par.control.p_ro_nom = 7e6; % [Pa]
+
+% par.ERUconfig = 1;
+
+% par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
+% par.rvConfig = (1)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
+% dp_rated = 1e5; % [Pa] 
+% q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
+% par.kv_rv = q_rated/dp_rated;
 
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

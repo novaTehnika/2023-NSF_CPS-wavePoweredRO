@@ -59,7 +59,7 @@ iWEC = [iytheta iytheta_dot iyrad];
 [dydt_control, control] = controller(t,y,par);
 
 % Calculate non-state variables like coeffs., forces, and flow rates
-nonState = nonStateVars(t,y,par);
+nonState = nonStateVars(t,y,control,par);
 
 % Calculate the hydrodynamics WEC state derivatives and output nonstate
 % variables like forces and wave elevation
@@ -96,20 +96,30 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
     function [dydt_control, control] = controller(t,y,par)
         %% PI control of P_Hout using w_pm
          % Error
-        err_p_filt = y(iyp_filt) - par.control.p_hout_nom;
+        err_p = y(iyp_filt) - par.control.p_ro_nom;
          % Feedforward
         w_ff = 0*par.control.w_pm_ctrl.min;
          % Control signal
         w_pm_nom = w_ff ...
-            + (par.control.w_pm_ctrl.kp*err_p_filt ...
+            + (par.control.w_pm_ctrl.kp*err_p ...
             + par.control.w_pm_ctrl.ki*y(iy_errInt_p_filt));
-        control.w_pm_nom = (w_pm_nom <= par.control.w_pm_ctrl.max ...
-                          & w_pm_nom >= par.control.w_pm_ctrl.min) ...
-                          * w_pm_nom ...
-                          + (w_pm_nom > par.control.w_pm_ctrl.max) ...
-                          * par.control.w_pm_ctrl.max ...
-                          + (w_pm_nom < par.control.w_pm_ctrl.min) ...
-                          * par.control.w_pm_ctrl.min;
+        nomAboveMax = w_pm_nom > par.control.w_pm_ctrl.max;
+        nomBelowMin = w_pm_nom < par.control.w_pm_ctrl.min;
+        p_hAbovep_ro = ~par.rvIncluded*(y(iyp_h) > y(iyp_ro));
+        control.w_pm_nom = p_hAbovep_ro*(w_pm_nom ...
+                  + nomAboveMax*(par.control.w_pm_ctrl.max - w_pm_nom) ...
+                  + nomBelowMin*(par.control.w_pm_ctrl.min - w_pm_nom)) ...
+                  + ~p_hAbovep_ro*par.control.w_pm_ctrl.min;
+
+        %% Feedforward control of active RO inlet valve
+        C_ro = capAccum(y(iyp_ro),par.pc_ro,par.Vc_ro,par.f,par);
+        q_ro = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm) ...
+                /(par.ERUconfig*par.Y + ~par.ERUconfig);
+        dp = y(iyp_h) - y(iyp_ro);
+        kv_ideal = (C_ro*par.control.dpdt_ROmax +sign(dp)*q_ro) ...
+                /sqrt(abs(dp));
+        control.kv_rv = par.rvConfig*max(0,min(par.kv_rv,kv_ideal)) ...
+                        + ~par.rvConfig*par.kv_rv;
                       
         %% deriviatives for filtered signal and error integrals (w/
          % anti-wind-up)
@@ -120,26 +130,23 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
                             % error integral for pressure control
                         (y(iy_errInt_p_filt) < 1e12 ...
                         & y(iy_errInt_p_filt) > -1e12) ...
-                        *err_p_filt];
+                        *err_p];
                         
     end
 
-    function nonState = nonStateVars(t,y,par)
+    function nonState = nonStateVars(t,y,control,par)
         % Accumulator capacitance
         nonState.C_l = capAccum(y(iyp_l),par.pc_l,par.Vc_l,par.f,par);
-        nonState.C_lout = capAccum(y(iyp_lout),par.pc_lout,par.Vc_lout,par.f,par) ...
-                        + lineCap(y(iyp_lout),1,par);
-        nonState.C_hin = capAccum(y(iyp_hin),par.pc_hin,par.Vc_hin,par.f,par) ...
-                        + lineCap(y(iyp_hin),2,par);
-        nonState.C_hout = capAccum(y(iyp_hout),par.pc_hout,par.Vc_hout,par.f,par) ...
-                        + lineCap(y(iyp_hout),2,par);
+        nonState.C_h = capAccum(y(iyp_h),par.pc_h,par.Vc_h,par.f,par);
+        nonState.C_ro = capAccum(y(iyp_ro),par.pc_ro,par.Vc_ro,par.f,par);
 
         % WEC-driven pump
          % pumping chamber capacitance
-        nonState.C_a = capWEC(y(iytheta),y(iyp_a),par) ...
-                        + deadVCap(y(iyp_a),par.VwecDead,par);
-        nonState.C_b = capWEC(-y(iytheta),y(iyp_b),par) ...
-                        + deadVCap(y(iyp_b),par.VwecDead,par);
+        V_a = par.V_wecDead + par.D_WEC*(par.thetaMax - y(iytheta));
+        nonState.C_a = deadVCap(y(iyp_a),V_a,par);
+        V_b = par.V_wecDead + par.D_WEC*(par.thetaMax + y(iytheta));
+        nonState.C_b = deadVCap(y(iyp_b),V_b,par);
+
          % Switching valve flow
         dp = y(iyp_a) - y(iyp_b);
         nonState.q_sv = areaFracPWM(t,par.duty_sv,par.T_sv,par.tr_sv) ...
@@ -159,33 +166,27 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
 
         delta_p_wp = y(iyp_a)-y(iyp_b);
         WECpumpPumping = y(iytheta_dot)*delta_p_wp < 0;
-        WECpumpMotoring = y(iytheta_dot)*delta_p_wp >= 0;
-        nonState.q_w = (WECpumpPumping*par.eta_v_WEC ...
-                    + WECpumpMotoring/par.eta_v_WEC)...
-                    * par.D_WEC*abs(y(iytheta_dot));
+        WECpumpMotoring = ~WECpumpPumping;
 
         nonState.T_pto = -sign(y(iytheta_dot))...
                     * (WECpumpPumping/par.eta_m_WEC ...
                     + WECpumpMotoring*par.eta_m_WEC)...
-                    * (abs(y(iytheta_dot)) > 5e-3)...
                     * par.D_WEC*delta_p_wp;
 
-        % nonState.pLinePPfricHP = pLsoln.PPfric;
-
         % house power pump/motor
-        delta_p_pm = y(iyp_lin) - y(iyp_hout);
-        nonState.pmPumping = y(iyw_pm)*(delta_p_pm) >= 0;
-        nonState.pmMotoring = y(iyw_pm)*(delta_p_pm) < 0;
+        delta_p_pm = y(iyp_l) - y(iyp_h);
+        nonState.pmPumping = y(control.w_pm)*(delta_p_pm) >= 0;
+        nonState.pmMotoring = y(control.w_pm)*(delta_p_pm) < 0;
 
-        volLoss_pm = par.APP.C_s*(delta_p_pm/(par.mu*abs(y(iyw_pm)))) ...
+        volLoss_pm = par.APP.C_s*(delta_p_pm/(par.mu*abs(control.w_pm))) ...
                            + (delta_p_pm/par.beta)*(par.APP.V_r + 1);
         nonState.eta_v_pm = nonState.pmPumping*(1 - volLoss_pm) ...
                           + nonState.pmMotoring/(1 + volLoss_pm);
         nonState.q_pm = (nonState.pmPumping*nonState.eta_v_pm ...
                         + nonState.pmMotoring/nonState.eta_v_pm) ...
-                        *par.D_pm*y(iyw_pm);
+                        *par.D_pm*control.w_pm;
 
-        mechLoss_pm = par.APP.C_v*par.mu*abs(y(iyw_pm))/delta_p_pm + par.APP.C_f;
+        mechLoss_pm = par.APP.C_v*par.mu*abs(control.w_pm)/delta_p_pm + par.APP.C_f;
         nonState.eta_m_pm = nonState.pmPumping/(1 + mechLoss_pm) ...
                           + nonState.pmMotoring*(1 - mechLoss_pm);
         nonState.Tpm = (nonState.pmPumping/nonState.eta_m_pm ...
@@ -193,12 +194,18 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
                         *par.D_pm*delta_p_pm;
 
         % Reverse osmosis module
-        nonState.q_perm = par.Sro*par.Aperm*(y(iyp_hout) - par.p_perm - par.p_osm);
-        nonState.q_feed = 1/par.Y*nonState.q_perm;
+        nonState.q_perm = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm);
+        nonState.q_feed = nonState.q_perm/par.Y;
+
+        % RO inlet valve
+        dp = y(iyp_h) - y(iyp_ro);
+        nonState.q_rv = control.kv_sv*( ...
+                        par.rvIncluded*sqrt(dp) ...
+                        + ~par.rvIncluded*dp);
 
         % ERU
         nonState.q_brine = nonState.q_feed - nonState.q_perm;
-        nonState.q_ERUfeed = (par.eta_ERUv)^2*nonState.q_brine;
+        nonState.q_ERUfeed = par.ERuconfig*(par.eta_ERUv)^2*nonState.q_brine;
 
         % Charge Pump
         dP_SO = (y(iyp_lin) - par.p_o) - par.cn*par.w_c^2; % difference between shut-off pressure and current pressure differential

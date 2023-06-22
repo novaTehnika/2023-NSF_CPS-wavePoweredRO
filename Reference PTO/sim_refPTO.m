@@ -129,6 +129,7 @@ stateIndex_refPTO % load state indices
    
      % torque on pump/motor and generator shafts
     out.Tpm = [nonState(:).Tpm]';
+    out.Tgen = out.Tpm;
     
      % WEC-driven pump flow
     out.q_ain = [nonState(:).q_ain]';
@@ -162,10 +163,10 @@ stateIndex_refPTO % load state indices
 %% Post-process analysis
 
     %% Energy analysis
-    % WEC-drive pump
+    % WEC-driven pump
     out.power.P_WEC = -out.T_pto.*out.theta_dot;
     out.power.P_wpLoss = out.power.P_WEC ...
-                       - out.q_wp.*(out.p_hin-out.p_lout);
+                       - out.theta_dot*par.D_WEC.*(out.p_a-out.p_b);
     
      % switching valve
     out.power.P_sv = out.q_sv.*(out.p_a-out.p_b);
@@ -187,7 +188,6 @@ stateIndex_refPTO % load state indices
                     + (-out.Tgen.*out.w_pm < 0)./par.eta_g) ...
                     .*out.Tgen.*out.w_pm;
     out.power.P_genLoss = -out.Tgen.*out.w_pm - out.power.P_gen;
-    out.power.deltaE_pmgenFlywheel = 0.5*out.par.Jpm*(out.w_pm(end).^2-out.w_pm(1).^2);
 
     % Charge pump
     out.power.P_cElec = 1/(par.eta_c*par.eta_m)*out.q_c.*(out.p_lin-out.par.p_o);
@@ -196,8 +196,8 @@ stateIndex_refPTO % load state indices
     % ERU
     P_ERUfeed = out.q_ERUfeed.*(out.p_hout - out.p_lin);
     P_ERUbrine = out.q_brine.*(out.p_hout - out.par.p_o);
-    PbalERU = 1/(par.eta_ERUv*par.eta_ERUm)*P_ERUfeed ...
-            - par.eta_ERUv*par.eta_ERUm*P_ERUbrine;
+    PbalERU = par.ERUconfig*(1/(par.eta_ERUv*par.eta_ERUm)*P_ERUfeed ...
+                                - par.eta_ERUv*par.eta_ERUm*P_ERUbrine);
     out.power.P_ERULoss = PbalERU + P_ERUbrine - P_ERUfeed;
     out.power.P_ERUelec = ((PbalERU > 0)./par.eta_m ...
                         + (PbalERU < 0).*par.eta_m) ...
