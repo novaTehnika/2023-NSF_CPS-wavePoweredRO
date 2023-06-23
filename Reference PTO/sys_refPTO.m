@@ -173,14 +173,13 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
                          par.kvWECout,par.pc_WECout,par.dp_WECout);
         
          % Reaction torque on WEC
-        delta_p_wp = y(iyp_a)-y(iyp_b);
+        delta_p_wp = y(iyp_b)-y(iyp_a);
         WECpumpPumping = y(iytheta_dot)*delta_p_wp < 0;
         WECpumpMotoring = ~WECpumpPumping;
 
-        nonState.T_pto = -sign(y(iytheta_dot))...
+        nonState.T_pto = par.D_WEC*delta_p_wp...
                     * (WECpumpPumping/par.eta_m_WEC ...
-                    + WECpumpMotoring*par.eta_m_WEC)...
-                    * par.D_WEC*delta_p_wp;
+                    + WECpumpMotoring*par.eta_m_WEC);
 
         % House power pump/motor
         delta_p_pm = y(iyp_l) - y(iyp_h);
