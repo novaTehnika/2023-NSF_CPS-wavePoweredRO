@@ -19,8 +19,9 @@ function par = parameters_WECmodel(par,filenameCoeff,filenameRadSS)
 % and prepares the matrices for the radiation damping, state-space model.
 %
 % FILE DEPENDENCY: 
-% nemohResults_vantHoff2009_20180802.mat
-% vantHoffTFCoeff.mat
+% ./WECdata/
+%   nemohResults_vantHoff2009_20180802.mat
+%   vantHoffTFCoeff.mat
 %
 % UPDATES:
 % 6/29/2021 - created from buoyTorque.m developed in 2018 
