@@ -76,7 +76,7 @@ par.tend = 2000; %[s] end time of simulation
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
 % par.odeSolverAbsTol = 1e-4; % Abs. error tolerance parameter for ODE solver
-par.MaxStep = 1e-4;             % [s] for fixed time solver, this is the step size for solver
+par.MaxStep = 5e-5;             % [s] for fixed time solver, this is the step size for solver
 par.downSampledStepSize = 1e-2; % [s] specifies time step for data output
 if mod(par.downSampledStepSize,par.MaxStep)
     warning('down-sampled time step is not an integer multiple of the maximum step size')
@@ -292,3 +292,39 @@ xlabel('Time (s)')
 linkaxes(ax,'x')
 
 sgtitle('Controller behaviour')
+
+%% WEC-driven pump
+bottomEdge = 1;
+leftEdge = 3;
+width = 7.5; % one column: 3+9/16, two column: 7.5
+height = 6;
+fontSize = 8;
+lineWidth = 1;
+
+fig = figure;
+fig.Units = 'inches';
+fig.Position = [leftEdge bottomEdge width height ];
+
+ax(1) = subplot(2,1,1);
+plot(out.t,out.p_a)
+hold on
+plot(out.t,out.p_b)
+plot(out.t,out.p_h,'k-')
+plot(out.t,out.p_l,'k--')
+xlabel('Time (s)')
+ylabel('Pressure (Pa)')
+legend('p_{a}','p_{b}','p_{h}','p_{l}')
+
+ax(2) = subplot(2,1,2);
+plot(out.t,out.q_h,'k-')
+hold on
+plot(out.t,out.q_l,'k--')
+plot(out.t,out.q_sv,'b')
+plot(out.t,out.q_aPRV+out.q_bPRV,'r')
+xlabel('Time (s)')
+ylabel('Flow rate (Lpm)')
+legend('q_{h}','q_{l}','q_{sv}','q_{aPRV} + q_{bPRV}')
+
+linkaxes(ax,'x');
+
+sgtitle('WEC-driven Pump Dynamics')
