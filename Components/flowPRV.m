@@ -1,6 +1,6 @@
-function q = prv(p,p_crack,C)
+function q = flowPRV(p,p_crack,C)
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% prv.m function m-file
+% flowPRV.m function m-file
 % AUTHORS: 
 % Jeremy Simmons (email: simmo536@umn.edu)
 % University of Minnesota
