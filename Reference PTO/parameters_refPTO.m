@@ -69,24 +69,24 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.T_sv = 0.5; % [s] switching period (1/switching freq)
     par.tr_sv = 0.05; % transition ratio (frac. of cyc. transitioning 1way)
 
-    dp_rated = 1e5; % [Pa] 
-    q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
-    par.kv_sv = q_rated/dp_rated;
+    dp_rated = 1e6; % [Pa] 
+    q_rated = 300e-3; % [m^3/s]
+    par.kv_sv = q_rated/sqrt(dp_rated);
     par.dp_svlin = 1e4; % [Pa] linearization margin
     par.kv_svlin = par.kv_sv*sqrt(par.dp_svlin)/par.dp_svlin;
 
      % check valves
       % inlet check valves (low-pressure)
-    dp_rated = 1e5; % [Pa] 
-    q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
-    par.kvWECin = q_rated/dp_rated;
+    dp_rated = 1e6; % [Pa] 
+    q_rated = 300e-3; % [m^3/s]
+    par.kvWECin = q_rated/sqrt(dp_rated);
     par.pc_WECin = 1e5; % [Pa] Cracking pressure
     par.dp_WECin = 1e5; % [Pa] margin between cracking pressure and fully open condition
     
      % outlet check valves (high-pressure)
-    dp_rated = 2e5; % [Pa] 
-    q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
-    par.kvWECout = q_rated/dp_rated;
+    dp_rated = 1e6; % [Pa] 
+    q_rated = 300e-3; % [m^3/s]
+    par.kvWECout = q_rated/sqrt(dp_rated);
     par.pc_WECout = 1e5; % [Pa] Cracking pressure
     par.dp_WECout = 1e5; % [Pa] margin between cracking pressure and fully open condition
 
@@ -156,8 +156,8 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
     par.rvConfig = (1)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
     dp_rated = 1e5; % [Pa] 
-    q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
-    par.kv_rv = q_rated/dp_rated;
+    q_rated = 100e-3; % [m^3/s]
+    par.kv_rv = q_rated/sqrt(dp_rated);
     par.control.dpdt_ROmax = (10)*6894.76;
     
     % Charging system (Intake & Boost pump)
