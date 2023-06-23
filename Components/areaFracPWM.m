@@ -60,4 +60,5 @@ X = max(0,min(1,(1-2*flag)*1/tr.*(t_frac - (1 - duty*(~flag)))));
 % if duty is one force valve always open
 flag = (duty==1);
 X = flag + X*(~flag);
+
 end
