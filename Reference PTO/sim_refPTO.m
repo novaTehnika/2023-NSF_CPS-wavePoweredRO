@@ -186,8 +186,8 @@ stateIndex_refPTO % load state indices
     %% Energy analysis
     % WEC-driven pump
     out.power.P_WEC = -out.T_pto.*out.theta_dot;
-    out.power.P_wpLoss = out.power.P_WEC ...
-                       - out.theta_dot*par.D_WEC.*(out.p_a-out.p_b);
+    out.power.P_wp = out.p_h.*out.q_h - out.p_l.*out.q_l;
+    out.power.P_wpLoss = out.power.P_WEC - out.power.P_wp;
     
      % switching valve
     out.power.P_sv = out.q_sv.*(out.p_a-out.p_b);
