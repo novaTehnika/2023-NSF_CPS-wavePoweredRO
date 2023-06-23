@@ -40,6 +40,6 @@ function q = flowCV(deltap,kv,pcrack,pmargin)
 
 q = max(0, ...
     min(kv*sqrt(pmargin+pcrack)/pmargin*(deltap-pcrack), ...
-        kv*sqrt(deltap)));
+        sign(deltap)*kv*sqrt(abs(deltap))));
 
 end
