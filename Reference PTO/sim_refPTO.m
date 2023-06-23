@@ -14,10 +14,22 @@ function out = sim_refPTO(y0,par)
 % the refPTO model.
 %
 % FILE DEPENDENCY:
-% sys_refPTO.m
-% stateIndex_refPTO.m
-% WEC model/flapModel.m
-% ode1.m
+% ../Reference PTO/
+%   sys_refPTO.m
+%   stateIndex_refPTO.m
+% ../WEC model/
+%   flapModel.m
+%   hydroStaticTorque.m
+% ../Solvers/
+%   deltaE_NI.m
+%   deltaV_NI.m
+%   ode1.m
+% ../Components/
+%   areaFracPWM.m
+%   capAccum.m
+%   deadVCap.m
+%   flowCV.m
+%   flowPRV.m
 %
 % UPDATES:
 % 6/12/2023 - Created from sim_parallelPTO.m.
@@ -48,10 +60,11 @@ iyp_ro = [];
 
 iyp_filt = [];
 iy_errInt_p_filt = [];
-iy_errInt_w_pm = [];
+iycontrol = [];
 
 iytheta = [];
 iytheta_dot = [];
+iyrad = [];
 
 stateIndex_refPTO % load state indices
 
@@ -69,8 +82,10 @@ stateIndex_refPTO % load state indices
     downSampleRate = floor(par.downSampledStepSize/dt);
 
  % Run solver
+    ticODE = tic;
     [t, y] = ode1(@(t,y) sys(t,y,par)', ...
                                 tspan(1),dt,tspan(2),y0,downSampleRate);
+    toc(ticODE)
 
 %% %%%%%%%%%%%%   POST-PROCESS   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Parameters
@@ -125,7 +140,7 @@ stateIndex_refPTO % load state indices
     out.T_rad = [temp(:).T_rad]';
           
      % Control signals
-    out.control.w_pm_nom = [control(:).w_pm_nom]';
+    out.control.w_pm = [control(:).w_pm]';
    
      % torque on pump/motor and generator shafts
     out.Tpm = [nonState(:).Tpm]';
@@ -136,12 +151,15 @@ stateIndex_refPTO % load state indices
     out.q_aout = [nonState(:).q_aout]';
     out.q_bin = [nonState(:).q_bin]';
     out.q_bout = [nonState(:).q_bout]';
-    out.q_sw = [nonState(:).q_sw]';
+    out.q_sv = [nonState(:).q_sv]';
+    out.q_aPRV = [nonState(:).q_aPRV]';
+    out.q_bPRV = [nonState(:).q_bPRV]';
 
-    out.q_h = nonState(:).q_aout + nonState(:).q_bout;
-    out.q_l = nonState(:).q_ain + nonState(:).q_bin;
+    out.q_h = [nonState(:).q_aout]' + [nonState(:).q_bout]';
+    out.q_l = [nonState(:).q_ain]' + [nonState(:).q_bin]';
 
      % pump/motor flow
+    out.w_pm = out.control.w_pm;
     out.q_pm = [nonState(:).q_pm]';
     
      % RO performance
@@ -149,13 +167,16 @@ stateIndex_refPTO % load state indices
     out.q_brine = [nonState(:).q_brine]';
     out.q_feed = out.q_perm + out.q_brine;
 
+     % RO inlet valve
+    out.q_rv = [nonState(:).q_rv]';
+
      % ERU flow rate
     out.q_ERUfeed = [nonState(:).q_ERUfeed]';
 
      % Charge Pump
     out.q_c = [nonState(:).q_c]';
 
-     % Pressure relief valves
+     % Pressure relief valves at system pressure nodes
     out.q_lPRV = [nonState(:).q_lPRV]';
     out.q_hPRV = [nonState(:).q_hPRV]';
     out.q_roPRV = [nonState(:).q_roPRV]';
@@ -182,7 +203,7 @@ stateIndex_refPTO % load state indices
     out.power.P_bPRV = out.q_bPRV.*(out.p_b-out.p_a);
 
     % Pump/motor and generator
-    out.power.P_pmLoss = (out.p_lin - out.p_hout).*out.q_pm ...
+    out.power.P_pmLoss = (out.p_l - out.p_h).*out.q_pm ...
                        - out.Tpm.*out.w_pm;
     out.power.P_gen = -((-out.Tgen.*out.w_pm > 0).*par.eta_g ...
                     + (-out.Tgen.*out.w_pm < 0)./par.eta_g) ...
@@ -190,12 +211,12 @@ stateIndex_refPTO % load state indices
     out.power.P_genLoss = -out.Tgen.*out.w_pm - out.power.P_gen;
 
     % Charge pump
-    out.power.P_cElec = 1/(par.eta_c*par.eta_m)*out.q_c.*(out.p_lin-out.par.p_o);
-    out.power.P_cLoss = out.power.P_cElec - out.q_c.*(out.p_lin-out.par.p_o);
+    out.power.P_cElec = 1/(par.eta_c*par.eta_m)*out.q_c.*(out.p_l-out.par.p_o);
+    out.power.P_cLoss = out.power.P_cElec - out.q_c.*(out.p_l-out.par.p_o);
 
     % ERU
-    P_ERUfeed = out.q_ERUfeed.*(out.p_hout - out.p_lin);
-    P_ERUbrine = out.q_brine.*(out.p_hout - out.par.p_o);
+    P_ERUfeed = out.q_ERUfeed.*(out.p_ro - out.p_l);
+    P_ERUbrine = out.q_brine.*(out.p_ro - out.par.p_o);
     PbalERU = par.ERUconfig*(1/(par.eta_ERUv*par.eta_ERUm)*P_ERUfeed ...
                                 - par.eta_ERUv*par.eta_ERUm*P_ERUbrine);
     out.power.P_ERULoss = PbalERU + P_ERUbrine - P_ERUfeed;
@@ -217,18 +238,21 @@ stateIndex_refPTO % load state indices
     %% Energy Balance
     % Change in available potential energy in WEC-driven pump chambers
     dp = 1e2;
-    cap = @(theta,p) capWEC(theta,p,par.pc_l,par.Vc_l,par.f,par) ...
-                    + deadVCap(p,par.VwecDead,par);
+    cap = @(p,V) deadVCap(p,V,par);
+    Va = @(theta) par.V_wecDead + par.D_WEC*(par.theta_max - theta);
+    Vb = @(theta) par.V_wecDead + par.D_WEC*(par.theta_max - theta);
+
      % Chamber 'a'
-    cap1 = @(p) cap(out.theta(1),p);
-    capend = @(p) cap(out.theta(end),p);
+    cap1 = @(p) cap(p,Va(out.theta(1)));
+    capend = @(p) cap(p,Va(out.theta(end)));
     deltaE_a = deltaE_NI(out.par.p_o,out.p_a(end),capend,dp) ...
                 - deltaE_NI(out.par.p_o,out.p_a(1),cap1,dp);
+
      % Chamber 'b'
-    cap1 = @(p) cap(-out.theta(1),p);
-    capend = @(p) cap(-out.theta(end),p);
-    deltaE_b = deltaE_NI(out.par.p_o,out.p_b(end),capend,dp) ...
-                - deltaE_NI(out.par.p_o,out.p_b(1),cap1,dp);
+    cap1 = @(p) cap(p,Vb(out.theta(1)));
+    capend = @(p) cap(p,Vb(out.theta(end)));
+    deltaE_b = deltaE_NI(out.par.p_o,out.p_a(end),capend,dp) ...
+                - deltaE_NI(out.par.p_o,out.p_a(1),cap1,dp);
 
     % Change in available potential energy in accumulators
     dp = 1e2;
@@ -252,7 +276,7 @@ stateIndex_refPTO % load state indices
 
     % Power flow at boundaries
     P_in = out.power.P_WEC;
-    P_out = out.q_perm.*(out.p_hout - out.par.p_o);
+    P_out = out.q_perm.*(out.p_ro - out.par.p_o);
     P_loss = out.power.P_wpLoss + out.power.P_sv...
             + out.power.P_ain + out.power.P_aout + out.power.P_aPRV ...
             + out.power.P_bin + out.power.P_bout + out.power.P_bPRV ...
@@ -269,18 +293,21 @@ stateIndex_refPTO % load state indices
     %% Mass Balance
     % Equivalent change in fluid volume in WEC-driven pump chambers
     dp = 1e2;
-    cap = @(theta,p) capWEC(theta,p,par.pc_l,par.Vc_l,par.f,par) ...
-                    + deadVCap(p,par.VwecDead,par);
+    cap = @(p,V) deadVCap(p,V,par);
+    Va = @(theta) par.V_wecDead + par.D_WEC*(par.theta_max - theta);
+    Vb = @(theta) par.V_wecDead + par.D_WEC*(par.theta_max - theta);
+
      % Chamber 'a'
-    cap1 = @(p) cap(out.theta(1),p);
-    capend = @(p) cap(out.theta(end),p);
+    cap1 = @(p) cap(p,Va(out.theta(1)));
+    capend = @(p) cap(p,Va(out.theta(end)));
     deltaV_a = deltaV_NI(out.par.p_o,out.p_a(end),capend,dp) ...
                 - deltaV_NI(out.par.p_o,out.p_a(1),cap1,dp);
+
      % Chamber 'b'
-    cap1 = @(p) cap(-out.theta(1),p);
-    capend = @(p) cap(-out.theta(end),p);
-    deltaV_b = deltaV_NI(out.par.p_o,out.p_b(end),capend,dp) ...
-                - deltaV_NI(out.par.p_o,out.p_b(1),cap1,dp);
+    cap1 = @(p) cap(p,Vb(out.theta(1)));
+    capend = @(p) cap(p,Vb(out.theta(end)));
+    deltaV_b = deltaV_NI(out.par.p_o,out.p_a(end),capend,dp) ...
+                - deltaV_NI(out.par.p_o,out.p_a(1),cap1,dp);
 
     % Change in fluid volume in accumulators
     dp = 1e2;

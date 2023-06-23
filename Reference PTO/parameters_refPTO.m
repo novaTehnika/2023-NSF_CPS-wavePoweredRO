@@ -20,7 +20,8 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
 % This function is for a use with sys_refPTO.m.
 %
 % FILE DEPENDENCY:
-% parameters_WECmodel.m
+% ../WEC model/
+%   parameters_WECmodel.m
 %
 % UPDATES:
 % 6/12/2023 - created from parameters_parallelPTO.m.
@@ -137,17 +138,19 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
 
     % Contoller Parameters
     par.control.p_h_nom = 6e6; % [Pa]
-    par.control.p_RO_nom = par.control.p_h_nom; % [Pa] (not actually used as control ref.)
+    par.control.p_ro_nom = par.control.p_h_nom; % [Pa] (not actually used as control ref.)
     par.control.p_l_nom = 0.5e6; % [Pa] (not actually used as control ref.)
-    par.control.p_RO_max = 8.2e6; % [Pa]
-    par.control.p_RO_min = max(3e6,par.pc_hout); % [Pa]
+    par.control.p_ro_max = 8.2e6; % [Pa]
+    par.control.p_ro_min = max(3e6,par.pc_ro); % [Pa]
 
      % Signal filtering
     par.control.tau_pfilt = 0.01; % [s] time constant for LPF for pressure signal
     
-     % PI control of w_pm using T_gen
-    par.control.wpm_ctrl.kp = 1e3;
-    par.control.wpm_ctrl.ki = 2e5;
+     % PI control of pressure (p_h or p_ro) using w_pm
+    par.control.w_pm_ctrl.max = par.w_pm_max;
+    par.control.w_pm_ctrl.min = par.w_pm_min;
+    par.control.w_pm_ctrl.kp = 1e-4;
+    par.control.w_pm_ctrl.ki = 6e-6;
 
     % RO inlet valve for pressure ripple reduction
     par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
@@ -191,7 +194,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
                  - (maxPressure-margin)*maxPressure^(1/2))/maxFlow;
 
      % high-pressure outlet of WEC-driven pump
-    maxPressure = 300e6; % [Pa]
+    maxPressure = 30e6; % [Pa]
     margin = 5e4; % [Pa]
     maxFlow = (100)*1e-3; % [(L/s) -> m^3/s]
     par.hPRV.p_crack = maxPressure - margin;

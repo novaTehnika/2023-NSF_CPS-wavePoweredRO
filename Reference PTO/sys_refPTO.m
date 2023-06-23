@@ -14,6 +14,16 @@ function [dydt, nonState, control] = sys_refPTO(t,y,par)
 % NSF-Cyber-Physical Systems project proposal.
 %
 % FILE DEPENDENCY:
+% ../Reference PTO/
+%   stateIndex_refPTO.m
+% ../WEC model/
+%   flapModel.m
+% ../Components/
+%   areaFracPWM.m
+%   capAccum.m
+%   deadVCap.m
+%   flowCV.m
+%   flowPRV.m
 %
 % UPDATES:
 % 6/12/2023 - created from sys_parallelPTO.m.
@@ -67,7 +77,7 @@ nonState = nonStateVars(t,y,control,par);
                     flapModel(t,y(iWEC),nonState.T_pto,par);
 
 % State derivatives
-dydt = zeros(11 + par.WEC.ny_rad,1);
+dydt = zeros(9 + par.WEC.ny_rad,1);
 
 dydt(iyp_a) = 1/nonState.C_a*(par.D_WEC*y(iytheta_dot) - nonState.q_sv ...
                 + nonState.q_ain - nonState.q_aout ...
@@ -82,7 +92,7 @@ dydt(iyp_l) = 1/nonState.C_l*(nonState.q_c ...
                 - nonState.q_lPRV + nonState.q_hPRV + nonState.q_roPRV);
 dydt(iyp_h) = 1/nonState.C_h*(nonState.q_aout + nonState.q_bout ...
                 - nonState.q_pm - nonState.q_rv - nonState.q_hPRV);
-dydt(iyp_ro) = 1/nonState.C_ro*(nonState.q_rov - nonState.q_feed ...
+dydt(iyp_ro) = 1/nonState.C_ro*(nonState.q_rv - nonState.q_feed ...
                 + nonState.q_ERUfeed - nonState.q_roPRV);
 
 dydt(iycontrol) = dydt_control;
@@ -106,7 +116,7 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         nomAboveMax = w_pm_nom > par.control.w_pm_ctrl.max;
         nomBelowMin = w_pm_nom < par.control.w_pm_ctrl.min;
         p_hAbovep_ro = ~par.rvIncluded*(y(iyp_h) > y(iyp_ro));
-        control.w_pm_nom = p_hAbovep_ro*(w_pm_nom ...
+        control.w_pm = p_hAbovep_ro*(w_pm_nom ...
                   + nomAboveMax*(par.control.w_pm_ctrl.max - w_pm_nom) ...
                   + nomBelowMin*(par.control.w_pm_ctrl.min - w_pm_nom)) ...
                   + ~p_hAbovep_ro*par.control.w_pm_ctrl.min;
@@ -116,7 +126,7 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         q_ro = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm) ...
                 /(par.ERUconfig*par.Y + ~par.ERUconfig);
         dp = y(iyp_h) - y(iyp_ro);
-        kv_ideal = (C_ro*par.control.dpdt_ROmax +sign(dp)*q_ro) ...
+        kv_ideal = (C_ro*par.control.dpdt_ROmax + sign(dp)*q_ro) ...
                 /sqrt(abs(dp));
         control.kv_rv = par.rvConfig*max(0,min(par.kv_rv,kv_ideal)) ...
                         + ~par.rvConfig*par.kv_rv;
@@ -124,7 +134,7 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         %% deriviatives for filtered signal and error integrals (w/
          % anti-wind-up)
         dydt_control = [    % filtered signal
-                        (y(iyp_hout) - y(iyp_filt))...
+                        (y(iyp_ro) - y(iyp_filt))...
                         /par.control.tau_pfilt;
 
                             % error integral for pressure control
@@ -142,9 +152,9 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
 
         % WEC-driven pump
          % pumping chamber capacitance
-        V_a = par.V_wecDead + par.D_WEC*(par.thetaMax - y(iytheta));
+        V_a = par.V_wecDead + par.D_WEC*(par.theta_max - y(iytheta));
         nonState.C_a = deadVCap(y(iyp_a),V_a,par);
-        V_b = par.V_wecDead + par.D_WEC*(par.thetaMax + y(iytheta));
+        V_b = par.V_wecDead + par.D_WEC*(par.theta_max + y(iytheta));
         nonState.C_b = deadVCap(y(iyp_b),V_b,par);
 
          % Switching valve flow
@@ -162,8 +172,7 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         nonState.q_bout = flowCV(y(iyp_b) - y(iyp_h), ...
                          par.kvWECout,par.pc_WECout,par.dp_WECout);
         
-
-
+         % Reaction torque on WEC
         delta_p_wp = y(iyp_a)-y(iyp_b);
         WECpumpPumping = y(iytheta_dot)*delta_p_wp < 0;
         WECpumpMotoring = ~WECpumpPumping;
@@ -173,10 +182,10 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
                     + WECpumpMotoring*par.eta_m_WEC)...
                     * par.D_WEC*delta_p_wp;
 
-        % house power pump/motor
+        % House power pump/motor
         delta_p_pm = y(iyp_l) - y(iyp_h);
-        nonState.pmPumping = y(control.w_pm)*(delta_p_pm) >= 0;
-        nonState.pmMotoring = y(control.w_pm)*(delta_p_pm) < 0;
+        nonState.pmPumping = control.w_pm*(delta_p_pm) >= 0;
+        nonState.pmMotoring = control.w_pm*(delta_p_pm) < 0;
 
         volLoss_pm = par.APP.C_s*(delta_p_pm/(par.mu*abs(control.w_pm))) ...
                            + (delta_p_pm/par.beta)*(par.APP.V_r + 1);
@@ -197,26 +206,26 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         nonState.q_perm = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm);
         nonState.q_feed = nonState.q_perm/par.Y;
 
-        % RO inlet valve
+         % RO inlet valve
         dp = y(iyp_h) - y(iyp_ro);
-        nonState.q_rv = control.kv_sv*( ...
-                        par.rvIncluded*sqrt(dp) ...
+        nonState.q_rv = control.kv_rv*( ...
+                        par.rvIncluded*sqrt(dp)*sign(dp) ...
                         + ~par.rvIncluded*dp);
 
-        % ERU
+         % ERU
         nonState.q_brine = nonState.q_feed - nonState.q_perm;
-        nonState.q_ERUfeed = par.ERuconfig*(par.eta_ERUv)^2*nonState.q_brine;
+        nonState.q_ERUfeed = par.ERUconfig*(par.eta_ERUv)^2*nonState.q_brine;
 
         % Charge Pump
-        dP_SO = (y(iyp_lin) - par.p_o) - par.cn*par.w_c^2; % difference between shut-off pressure and current pressure differential
+        dP_SO = (y(iyp_l) - par.p_o) - par.cn*par.w_c^2; % difference between shut-off pressure and current pressure differential
         nonState.q_c = (dP_SO < 0)* sqrt(dP_SO/par.cq);
 
         % Pressure relief valves
-        nonState.q_aPRV = prv(y(iyp_a),par.aPRV.p_crack,par.aPRV.C);
-        nonState.q_bPRV = prv(y(iyp_b),par.bPRV.p_crack,par.bPRV.C);
-        nonState.q_lPRV = prv(y(iyp_l),par.lPRV.p_crack,par.lPRV.C);
-        nonState.q_hPRV = prv(y(iyp_h),par.hPRV.p_crack,par.hPRV.C);
-        nonState.q_roPRV = prv(y(iyp_ro),par.roPRV.p_crack,par.roPRV.C);
+        nonState.q_aPRV = flowPRV(y(iyp_a),par.aPRV.p_crack,par.aPRV.C);
+        nonState.q_bPRV = flowPRV(y(iyp_b),par.bPRV.p_crack,par.bPRV.C);
+        nonState.q_lPRV = flowPRV(y(iyp_l),par.lPRV.p_crack,par.lPRV.C);
+        nonState.q_hPRV = flowPRV(y(iyp_h),par.hPRV.p_crack,par.hPRV.C);
+        nonState.q_roPRV = flowPRV(y(iyp_ro),par.roPRV.p_crack,par.roPRV.C);
 
     end
 

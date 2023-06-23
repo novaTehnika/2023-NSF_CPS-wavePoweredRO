@@ -15,11 +15,29 @@
 % script before the sim_refPTO.m script is called.
 %
 % FILE DEPENDENCY:
-% sys_refPTO.m
-% sim_refPTO.m
-% parameters_refPTO.m
-% stateIndex_refPTO.m
-% initialConditionDefault_refPTO.m
+% ./Reference PTO/
+%   initialConditionDefault_refPTO
+%   parameters_refPTO.m
+%   sim_refPTO.m
+%   stateIndex_refPTO.m
+%   sys_refPTO.m
+% ./WEC model/
+%   flapModel.m
+%   hydroStaticTorque.m
+%   parameters_WECmodel.m
+% ./WEC model/WECdata
+%   nemohResults_vantHoff2009_20180802.mat
+%   vantHoffTFCoeff.mat
+% ./Solvers/
+%   deltaE_NI.m
+%   deltaV_NI.m
+%   ode1.m
+% ./Components/
+%   areaFracPWM.m
+%   capAccum.m
+%   deadVCap.m
+%   flowCV.m
+%   flowPRV.m
 %
 % UPDATES:
 % 6/12/2023 - Created from run_parallelPTO.m.
@@ -93,9 +111,9 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-tic
+ticSIM = tic;
 out = sim_refPTO(y0,par);
-toc
+toc(ticSIM)
 
 %% %%%%%%%%%%%%   PLOTTING  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -160,20 +178,19 @@ fig.Units = 'inches';
 fig.Position = [leftEdge bottomEdge width height ];
 
 ax(1) = subplot(2,1,1);
-plot(out.t,out.p_hin)
+plot(out.t,out.p_h)
 hold on
-plot(out.t,out.p_hout)
+plot(out.t,out.p_ro)
 xlabel('Time (s)')
 ylabel('Pressure (Pa)')
-legend('p_{hin}','p_{hout}')
+legend('p_{h}','p_{ro}')
 
 ax(2) = subplot(2,1,2);
-plot(out.t,out.p_lin)
+plot(out.t,out.p_l)
 hold on
-plot(out.t,out.p_lout)
 xlabel('Time (s)')
 ylabel('Pressure (Pa)')
-legend('p_{lin}','p_{lout}')
+legend('p_{l}')
 
 linkaxes(ax,'x');
 
@@ -192,30 +209,33 @@ fig.Units = 'inches';
 fig.Position = [leftEdge bottomEdge width height ];
 
 ax(1) = subplot(3,1,1);
-plot(out.t,out.q_pm)
+plot(out.t,out.q_h(:))
 hold on
-plot(out.t,out.q_perm)
+plot(out.t,out.q_pm(:))
+plot(out.t,out.q_rv(:))
 xlabel('Time (s)')
 ylabel('Flow rate (m^3/s)')
-legend('q_{pm}','q_{perm}')
+legend('q_{h}','q_{pm}','q_{rv}')
 
 ax(2) = subplot(3,1,2);
-plot(out.t,out.q_wp(:))
+plot(out.t,out.q_rv(:))
 hold on
-plot(out.t,out.qHP(:,1))
-plot(out.t,out.qHP(:,end))
+plot(out.t,out.q_ERUfeed(:))
+plot(out.t,out.q_feed(:))
+plot(out.t,out.q_perm(:))
 xlabel('Time (s)')
 ylabel('Flow rate (m^3/s)')
-legend('q_{w}','q_{h,in}','q_{h,out}')
+legend('q_{rv}','q_{ERUfeed}','q_{feed}','q_{perm}')
 
 ax(3) = subplot(3,1,3);
-plot(out.t,out.q_wp(:))
+plot(out.t,out.q_l(:))
 hold on
-plot(out.t,out.qLP(:,1))
-plot(out.t,out.qLP(:,end))
+plot(out.t,out.q_pm(:))
+plot(out.t,out.q_c(:))
+plot(out.t,out.q_ERUfeed(:))
 xlabel('Time (s)')
 ylabel('Flow rate (m^3/s)')
-legend('q_{w}','q_{l,out}','q_{l,in}')
+legend('q_{l}','q_{pm}','q_{c}','q_{ERUfeed}')
 
 linkaxes(ax,'x')
 
@@ -236,16 +256,16 @@ fig.Position = [leftEdge bottomEdge width height ];
 
 ax(1) = subplot(4,1,1);
 hold on
-plot(out.t,1e-6*out.p_hout)
+plot(out.t,1e-6*out.p_ro)
 plot(out.t,1e-6*out.control.p_filt)
 xlabel('Time (s)')
 ylabel('Pressure (MPa)')
-legend('p_{hout}','p_{filt}')
+legend('p_{ro}','p_{filt}')
 
 ax(2) = subplot(4,1,2);
 hold on
 yyaxis left
-plot(out.t,60/(2*pi)*out.control.w_pm_nom)
+plot(out.t,60/(2*pi)*out.control.w_pm)
 plot(out.t,60/(2*pi)*out.w_pm)
 ylabel('Shaft speed (rpm)')
 yyaxis right
@@ -256,18 +276,16 @@ legend('nominal','actual','Generator')
 ax(3) = subplot(4,1,3);
 hold on
 plot(out.t,1e3*out.q_pm)
-plot(out.t,1e3*out.q_wp)
+plot(out.t,1e3*out.q_h)
 ylabel('Flow rate (Lpm)')
-legend('q_{pm}','q_{w}')
+legend('q_{pm}','q_{h}')
 
 ax(4) = subplot(4,1,4);
 hold on
 yyaxis left
 plot(out.t,out.control.errInt_p_filt)
 ylabel('Error integral')
-yyaxis right
-plot(out.t,out.control.errInt_w_pm)
-legend('pressure control','speed control')
+legend('pressure control')
 ylabel('Error integral')
 xlabel('Time (s)')
 
