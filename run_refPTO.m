@@ -109,6 +109,8 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 % q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
 
+par.duty_sv = 0.0;
+
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ticSIM = tic;
@@ -255,12 +257,13 @@ fig.Units = 'inches';
 fig.Position = [leftEdge bottomEdge width height ];
 
 ax(1) = subplot(4,1,1);
+plot(out.t,1e-6*out.p_h)
 hold on
 plot(out.t,1e-6*out.p_ro)
 plot(out.t,1e-6*out.control.p_filt)
 xlabel('Time (s)')
 ylabel('Pressure (MPa)')
-legend('p_{ro}','p_{filt}')
+legend('p_{h}','p_{ro}','p_{filt}')
 
 ax(2) = subplot(4,1,2);
 hold on
