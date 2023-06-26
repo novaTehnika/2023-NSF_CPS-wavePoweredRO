@@ -77,16 +77,16 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
 
      % check valves
       % inlet check valves (low-pressure)
-    dp_rated = 1e6; % [Pa] 
-    q_rated = 300e-3; % [m^3/s]
-    par.kvWECin = q_rated/sqrt(dp_rated);
+    % dp_rated = 1e6; % [Pa] 
+    % q_rated = 1.5*600e-3; % [m^3/s]
+    par.kvWECin = 1.5*0.36e-3; % q_rated/sqrt(dp_rated);
     par.pc_WECin = 1e5; % [Pa] Cracking pressure
     par.dp_WECin = 1e5; % [Pa] margin between cracking pressure and fully open condition
     
      % outlet check valves (high-pressure)
-    dp_rated = 1e6; % [Pa] 
-    q_rated = 300e-3; % [m^3/s]
-    par.kvWECout = q_rated/sqrt(dp_rated);
+    % dp_rated = 1e6; % [Pa] 
+    % q_rated = 300e-3; % [m^3/s]
+    par.kvWECout = 0.36e-3; % q_rated/sqrt(dp_rated);
     par.pc_WECout = 1e5; % [Pa] Cracking pressure
     par.dp_WECout = 1e5; % [Pa] margin between cracking pressure and fully open condition
 
@@ -149,14 +149,14 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
      % PI control of pressure (p_h or p_ro) using w_pm
     par.control.w_pm_ctrl.max = par.w_pm_max;
     par.control.w_pm_ctrl.min = par.w_pm_min;
-    par.control.w_pm_ctrl.kp = 1e-4;
-    par.control.w_pm_ctrl.ki = 6e-6;
+    par.control.w_pm_ctrl.kp = 5e-4;
+    par.control.w_pm_ctrl.ki = 5e-6;
 
     % RO inlet valve for pressure ripple reduction
     par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
     par.rvConfig = (1)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
     dp_rated = 1e5; % [Pa] 
-    q_rated = 100e-3; % [m^3/s]
+    q_rated = 50e-3; % [m^3/s]
     par.kv_rv = q_rated/sqrt(dp_rated);
     par.control.dpdt_ROmax = (10)*6894.76;
     
