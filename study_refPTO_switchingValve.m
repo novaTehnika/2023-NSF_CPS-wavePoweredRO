@@ -118,9 +118,9 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 par.duty_sv = 0.25;
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nVar1 = 2;
+nVar1 = 10;
 kv = logspace(log10(1e-4),log10(1e-3),nVar1);% [Nm] PTO reaction torque
-nVar2 = 2;
+nVar2 = 10;
 Tsw = logspace(log10(0.1),log10(5),nVar2);% [Nm] PTO reaction torque
 
 [meshVar.kv, meshVar.Tsw] = meshgrid(kv,Tsw);
@@ -150,8 +150,8 @@ parfor iVar = 1:nVar
     % Calculate metrics
     it_vec = find(out.t>=par.tstart);
     PP_WEC(iVar) = mean(out.power.P_WEC(it_vec));
-    eff_wecPump(iVar) = mean(out.power.P_wp(it_vec)) ...
-                        /PP_WEC(iVar);
+    PP_wp(iVar) = mean(out.power.P_wp(it_vec));
+    eff_wecPump(iVar) = PP_wp(iVar)/PP_WEC(iVar);
 
     if saveSimData
         simOut(iVar) = out;
@@ -170,6 +170,7 @@ for j = 1:J
     for k = 1:K
         i = K*(j-1) + k;
         PP_WEC_2D(j,k) = PP_WEC(i);
+        PP_wp_2D(j,k) = PP_wp(i);
         eff_wecPump_2D(j,k) = eff_wecPump(i); 
         test = (meshVar.Tsw(i) == Tsw(k)) && (meshVar.kv(i) == kv(j)) && test;
     end
@@ -203,7 +204,7 @@ C1 = contour(log10(X),Y,Z,levels,'-k','ShowText','on');
 xt = xticks;
 xticklabels("10^{"+string(xt')+"}");
 
-xlabel('flow coefficient (L/s/kPa^{1/2})'); 
+xlabel('flow coefficient (L/s/kPa^{1/2})');
 ylabel('switching period (s)');
 title('WEC-driven Pump Efficiency')
 
@@ -218,6 +219,21 @@ C2 = contour(log10(X),Y,Z,'-k','ShowText','on');
 xt = xticks;
 xticklabels("10^{"+string(xt')+"}");
 
-xlabel('flow coefficient (L/s/kPa^{1/2})'); 
+xlabel('flow coefficient (L/s/kPa^{1/2})');
 ylabel('switching period (s)');
 title('WEC Power Absorption (kW)')
+
+% Pump output power
+X = kv*sqrt(1000);
+Y = Tsw;
+Z = PP_wp_2D*1e-3;
+
+
+figure
+C2 = contour(log10(X),Y,Z,'-k','ShowText','on');
+xt = xticks;
+xticklabels("10^{"+string(xt')+"}");
+
+xlabel('flow coefficient (L/s/kPa^{1/2})');
+ylabel('switching period (s)');
+title('WEC-Driven Pump Power Output (kW)')
