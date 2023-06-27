@@ -60,8 +60,10 @@ par.odeSolverAbsTol = 1e-4; % Abs. error tolerance parameter for ODE solver
 par.MaxStep = 1e-2;
 
 % Sea State and Wave construction parameters
-par.wave.Hs = 1.25;
-par.wave.Tp = 7.5;
+% Hs = [2.34 2.64 5.36 2.05 5.84 3.25];
+% Tp = [7.31 9.86 11.52 12.71 15.23 16.5];
+par.wave.Hs = 2.64;
+par.wave.Tp = 9.86;
 par.WEC.nw = 1000; % num. of frequency components for harmonic superposition 
 par.wave.rngSeedPhase = 3; % seed for the random number generator
 
