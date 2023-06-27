@@ -117,7 +117,7 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nVar = 10;
-kv = logspace(log10(1e-5),log10(1e-3),nVar);% [Nm] PTO reaction torque
+kv = logspace(log10(1e-5),log10(1e-3),nVar);% [m^3/s/Pa] valve coefficient for high-pressure outlet check valve
 X = 1.5; % proportion between low and high-pressure check valves
 
 saveSimData = 1; % save simulation data (1) or just output variables (0)

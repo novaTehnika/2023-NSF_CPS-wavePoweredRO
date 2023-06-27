@@ -119,9 +119,9 @@ par.duty_sv = 0.25;
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nVar1 = 10;
-kv = logspace(log10(1e-4),log10(1e-3),nVar1);% [Nm] PTO reaction torque
+kv = logspace(log10(1e-4),log10(1e-3),nVar1);% [m^3/s/Pa] valve coefficient for swithcing valve, full open
 nVar2 = 10;
-Tsw = logspace(log10(0.1),log10(5),nVar2);% [Nm] PTO reaction torque
+Tsw = logspace(log10(0.1),log10(5),nVar2);% [s] switching period
 
 [meshVar.kv, meshVar.Tsw] = meshgrid(kv,Tsw);
 kv_mesh = meshVar.kv(:);
