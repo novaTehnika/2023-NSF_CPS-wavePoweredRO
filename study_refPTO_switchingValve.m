@@ -134,8 +134,6 @@ saveSimData = 1; % save simulation data (1) or just output variables (0)
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 parfor iVar = 1:nVar
-    iVar1 = 1;
-    iVar2 = 1;
     param = par; % store individual parameter strucs for parallel compute
 
     % change design parameter
