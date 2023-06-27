@@ -148,6 +148,17 @@ parfor iVar = 1:nVar
 
 end
 
+%% %%%%%%%%%%%%   Save Data  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Save: time in ISO8601
+filename = ['data_refPTO_checkValves', ...
+            '-',datestr(now,'yyyymmddTHHMMSS')];
+save(filename)
+
+%% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+return
+
 %% %%%%%%%%%%%%   PLOTTING  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 figure
