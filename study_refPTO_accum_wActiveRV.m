@@ -5,7 +5,7 @@
 % Department of Mechanical Engineering
 %
 % CREATION DATE:
-% 6/23/2023
+% 6/27/2023
 %
 % PURPOSE/DESCRIPTION:
 % This script performs parameter variation studies
@@ -49,8 +49,7 @@
 %   flowPRV.m
 %
 % UPDATES:
-% 6/23/2023 - Created from study_coulombPTO_dampingStudy.m and 
-% run_refPTO.m.
+% 6/27/2023 - Created from study_refPTO_switchingValve.m
 %
 % Copyright (C) 2023  Jeremy W. Simmons II
 % 
