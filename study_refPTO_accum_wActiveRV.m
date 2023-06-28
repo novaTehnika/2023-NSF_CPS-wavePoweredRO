@@ -21,7 +21,8 @@
 % This script is set up to be run as part of a SLURM job array. The
 % following lines are required before this script is called:
 %   iVar = ${SLURM_ARRAY_TASK_ID};
-%   parpool('local',$SLURM_JOB_CPUS_PER_NODE);
+%   addpath('Utilities'); 
+%   startParPool($SLURM_JOB_CPUS_PER_NODE);
 %
 % FILE DEPENDENCY:
 % ./Reference PTO/
