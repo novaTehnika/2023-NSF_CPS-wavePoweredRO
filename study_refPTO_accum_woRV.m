@@ -128,7 +128,7 @@ par.duty_sv = 0;
 % total accumulator volume
 
 nVar = 15;
-Vtotal = logspace(log10(1e3),log10(50e3),nVar);% [m^3] total accumulator volume
+Vtotal = 1e-3*logspace(log10(1e3),log10(50e3),nVar1);% [L->m^3] total accumulator volume
 
 saveSimData = 1; % save simulation data (1) or just output variables (0)
 

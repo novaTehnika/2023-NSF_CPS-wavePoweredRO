@@ -132,7 +132,7 @@ par.duty_sv = 0;
 % max valve coefficient
 
 nVar1 = 15;
-Vtotal = logspace(log10(1e3),log10(50e3),nVar1);% [m^3] total accumulator volume
+Vtotal = 1e-3*logspace(log10(1e3),log10(50e3),nVar1);% [L->m^3] total accumulator volume
 nVar2 = 9;
 X = linspace(0.1,0.9,nVar2); % [-] accumulator volume distribution 1 - all at RO inlet, 0 - all at motor inlet
 nVar3 = 5;
