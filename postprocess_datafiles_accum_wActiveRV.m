@@ -45,15 +45,16 @@ end
 
 end
 %% Transform data to 3D variable mesh
-I = length(Vtotal);
-J = length(X);
-K = length(kv);
+I = length(kv);
+J = length(Vtotal);
+K = length(X);
+
 
 test = 1;
 for i = 1:I
     for j = 1:J
         for k = 1:K
-            m = J*I*(k-1) + I*(j-1) + i;
+            m = J*K*(i-1) + K*(j-1) + k;
 
             q_permMean_3D(i,j,k) = q_permMean;
             PP_WEC_3D(i,j,k) = PP_WEC_array(m);
@@ -69,9 +70,9 @@ for i = 1:I
             Vtotal_3D(i,j,k) = Vtotal_mesh(m);
             X_3D(i,j,k) = X_mesh(m);
             kv_3D(i,j,k) = kv_mesh(m);
-            test = (Vtotal_mesh(m) == Vtotal(i)) ...
-                && (X_mesh(m) == X(j)) ...
-                && (kv_mesh(m) == kv(k)) ...
+            test = (Vtotal_mesh(m) == Vtotal(j)) ...
+                && (X_mesh(m) == X(k)) ...
+                && (kv_mesh(m) == kv(i)) ...
                 && test;
         end
     end
@@ -81,7 +82,18 @@ if ~test; error('indexing incorrect'); end
 clearvars test
 
 
-%% Plot average power results for one turndown fraction but multiple turndown ratio
+%% Plot average power loss as a function of total accumulator volume for distribution (color) and valve coefficient (line type)
+ % select indices to plot
+    % distribution
+    iiK = 1:4:K;
+    nK = length(iiK);
+    % valve coeff.
+    iiI = 1:2:I;
+    nI = length(iiI);
+   
+  % selct variable to plot
+  Y = PP_rv_3D;
+
 black = [0 0 0];
 maroon = [122 0 25]/256;
 gold = [255 204 51]/256;
@@ -89,6 +101,8 @@ blue = [0 75 135]/256;
 orange = [226 100 55]/256;
 green = [63 150 87]/256;
 color = [maroon; gold; blue; orange; green];
+
+linestyles = {'-', '--', ':', '-.'};
 
 bottomEdge = 1;
 leftEdge = 3;
@@ -113,54 +127,49 @@ hold on
 % dummy plots for legend
 iLeg = 0;
 
-for k = 1:K
+ % color - total volume
+for k = 1:nK
     scatter(-99*[1, 0.5],-99*[1, 0.5],50, ...
         'filled','s','LineWidth',2,...
         'MarkerEdgeColor',color(k,:),'MarkerFaceColor',color(k,:));
     iLeg = iLeg+1;
     legLabels(iLeg) = convertCharsToStrings( ...
-        ['min. load frac. = ',num2str(lbFrac(k))]);
+        ['fraction at RO inlet = ',num2str(X(iiK(k)))]);
 end
 
-scatter(-99*[1 1],-99*[1 1],50, ...
-        'filled','x','LineWidth',2,'MarkerEdgeColor','k');
-iLeg = iLeg+1;
-legLabels(iLeg) = convertCharsToStrings('MPC algorithm');
-
-plot(-99*[1 1],-99*[1 1],'-k','LineWidth',1)
-iLeg = iLeg+1;
-legLabels(iLeg) = convertCharsToStrings('Optimal Coulomb damping');
-
-plot(-99*[1 1],-99*[1 1],'--k','LineWidth',1)
-iLeg = iLeg+1;
-legLabels(iLeg) = "Fixed Coulomb damping";
+for i = 1:nI
+    plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
+    iLeg = iLeg+1;
+    legLabels(iLeg) = convertCharsToStrings( ...
+        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000)),'(L/s/kPa^{1/2})']);
+end
 
 % plot real data
 
-for k = 1:K
-    s(k) = scatter(1e-6*T_max,1e-3*PP_yearlyAve(:,k),50, ...
-        'filled','x','LineWidth',2,...
-        'MarkerEdgeColor',color(k,:),'MarkerFaceColor',color(k,:));
-    s(k).HandleVisibility='off';
-    
-    p(k) = plot(1e-6*Tmax_Coulomb,1e-3*PP_yearlyAveCoulomb(k,:),'-','Color',color(k,:),'LineWidth',1);
-    p(k).HandleVisibility='off';
+for k = 1:nK
+    for i = 1:nI
+        p(k,i) = plot(Vtotal*1e3,1e-3*Y(iiI(i),:,iiK(k)), ...
+            'LineStyle', linestyles{i}, ...
+            'Color',color(k,:), ...
+            'LineWidth',1);
+        p(k,i).HandleVisibility='off';
+    end
 end
-p(K+1) = plot(1e-6*Tmax_Coulomb,1e-3*PP_yearlyAveCoulomb(end,:),'--k','LineWidth',1);
-p(K+1).HandleVisibility='off';
 
-xlabel('torque, max (MNm)', ...
+
+xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('power (kW)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title(['Mean Power Capture, Yearly Average'],...
+title(['Mean Power Loss With Active Ripple Control'],...
 'Interpreter','latex','FontSize',fontSize,'fontname','Times')
 
-leg = legend(legLabels)
+leg = legend(legLabels);
 leg.FontSize = fontSize-1;
 leg.FontName = 'Times';
 rect = [0.5, -0.2, 0.25, 0.15];
 % set(leg, 'Position', rect)
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')
-xlim([0 1e-6*max(T_max)])
+xlim([0 1e3*max(Vtotal)])
+ylim([0 max(Y)])
