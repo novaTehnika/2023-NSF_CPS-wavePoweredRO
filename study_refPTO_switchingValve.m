@@ -182,7 +182,7 @@ clearvars test
 % Save: time in ISO8601
 filename = ['data_refPTO_switchingValve', ...
             '-',datestr(now,'yyyymmddTHHMMSS')];
-save(filename)
+save(filename,'-v7.3')
 
 %% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
