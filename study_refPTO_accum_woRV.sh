@@ -13,8 +13,6 @@ cd ~/2023-NSF_CPS-wavePoweredRO
 module load matlab
 matlab -nodisplay -r \
 "iVar = ${SLURM_ARRAY_TASK_ID}; \
-addpath('Utilities'); \
-startParPool(${SLURM_JOB_CPUS_PER_NODE}); \
 study_refPTO_accum_woRV"
 
 # Commands to use

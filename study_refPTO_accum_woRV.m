@@ -19,8 +19,6 @@
 % This script is set up to be run as part of a SLURM job array. The
 % following lines are required before this script is called:
 %   iVar = ${SLURM_ARRAY_TASK_ID};
-%   addpath('Utilities'); 
-%   startParPool($SLURM_JOB_CPUS_PER_NODE);
 %
 % FILE DEPENDENCY:
 % ./Reference PTO/
@@ -180,5 +178,7 @@ filename = ['data_refPTO_accum_woRV_', ...
 save(filename)
 
 %% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+poolobj = gcp('nocreate'); delete(poolobj);
 
 return

@@ -3,7 +3,11 @@ function [] = startParPool(n_cpu)
     while(flag)
         try
             p = gcp('nocreate');
-            if isempty(p); parpool('local',n_cpu); end
+            if ~exist('n_cpu','var')
+                if isempty(p); parpool('local'); end
+            else
+                if isempty(p); parpool('local',n_cpu); end
+            end
             flag = 0;
         catch
             flag = 1;

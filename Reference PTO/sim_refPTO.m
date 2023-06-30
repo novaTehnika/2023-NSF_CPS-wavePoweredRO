@@ -115,6 +115,7 @@ stateIndex_refPTO % load state indices
     syspost = @(t,y,par) sysPost(t,y,par);
 
     nt_ramp = itVec(1)-1;
+    startParPool
     parfor it = 1:length(itVec)
         
         [dydt(it,:), nonState(it), control(it)] = ...
