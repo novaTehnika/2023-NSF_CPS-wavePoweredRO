@@ -104,7 +104,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     
     % power control unit
       % pump/motor
-    par.D_pm = (6500)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
+    par.D_pm = (1000)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
     par.w_pm_max = (3600)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
     par.w_pm_min = (1)/60*2*pi; % [(rpm) -> rad/s] minimum speed of motor
 
@@ -150,7 +150,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.control.w_pm_ctrl.max = par.w_pm_max;
     par.control.w_pm_ctrl.min = par.w_pm_min;
     par.control.w_pm_ctrl.kp = 5e-4;
-    par.control.w_pm_ctrl.ki = 5e-6;
+    par.control.w_pm_ctrl.ki = 0*5e-6;
 
     % RO inlet valve for pressure ripple reduction
     par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
