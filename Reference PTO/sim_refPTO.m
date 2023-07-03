@@ -142,7 +142,9 @@ stateIndex_refPTO % load state indices
           
      % Control signals
     out.control.w_pm = [control(:).w_pm]';
-   
+    out.control.kv_rv = [control(:).kv_rv]';
+    out.control.kv_ideal = [control(:).kv_ideal]';
+
      % torque on pump/motor and generator shafts
     out.Tpm = [nonState(:).Tpm]';
     out.Tgen = out.Tpm;

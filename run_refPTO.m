@@ -173,7 +173,7 @@ sgtitle('WEC Behaviour')
 bottomEdge = 1;
 leftEdge = 3;
 width = 7.5; % one column: 3+9/16, two column: 7.5
-height = 6;
+height = 9;
 fontSize = 8;
 lineWidth = 1;
 
@@ -181,7 +181,7 @@ fig = figure;
 fig.Units = 'inches';
 fig.Position = [leftEdge bottomEdge width height ];
 
-ax(1) = subplot(2,1,1);
+ax(1) = subplot(3,1,1);
 plot(out.t,out.p_h)
 hold on
 plot(out.t,out.p_ro)
@@ -189,12 +189,21 @@ xlabel('Time (s)')
 ylabel('Pressure (Pa)')
 legend('p_{h}','p_{ro}')
 
-ax(2) = subplot(2,1,2);
+ax(2) = subplot(3,1,2);
 plot(out.t,out.p_l)
 hold on
 xlabel('Time (s)')
 ylabel('Pressure (Pa)')
 legend('p_{l}')
+
+ax(3) = subplot(3,1,3);
+plot(out.t,1e-5*out.dydt(:,iyp_ro))
+hold on
+plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[1 1],'--k')
+plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[-1 -1],'--k')
+xlabel('Time (s)')
+ylabel('Rate of change in pressure (bar/s)')
+legend('dpdt_{ro}','target limit')
 
 linkaxes(ax,'x');
 
@@ -250,7 +259,7 @@ sgtitle('Flow rates')
 bottomEdge = 1;
 leftEdge = 3;
 width = 7.5; % one column: 3+9/16, two column: 7.5
-height = 8;
+height = 9;
 fontSize = 8;
 lineWidth = 1;
 
@@ -258,7 +267,7 @@ fig = figure;
 fig.Units = 'inches';
 fig.Position = [leftEdge bottomEdge width height ];
 
-ax(1) = subplot(4,1,1);
+ax(1) = subplot(5,1,1);
 plot(out.t,1e-6*out.p_h)
 hold on
 plot(out.t,1e-6*out.p_ro)
@@ -267,7 +276,7 @@ xlabel('Time (s)')
 ylabel('Pressure (MPa)')
 legend('p_{h}','p_{ro}','p_{filt}')
 
-ax(2) = subplot(4,1,2);
+ax(2) = subplot(5,1,2);
 hold on
 yyaxis left
 plot(out.t,60/(2*pi)*out.control.w_pm)
@@ -278,20 +287,26 @@ plot(out.t,1e-3*out.Tgen)
 ylabel('Torque (kNm)')
 legend('nominal','actual','Generator')
 
-ax(3) = subplot(4,1,3);
+ax(3) = subplot(5,1,3);
 hold on
 plot(out.t,1e3*out.q_pm)
 plot(out.t,1e3*out.q_h)
 ylabel('Flow rate (Lpm)')
 legend('q_{pm}','q_{h}')
 
-ax(4) = subplot(4,1,4);
+ax(4) = subplot(5,1,4);
 hold on
-yyaxis left
 plot(out.t,out.control.errInt_p_filt)
-ylabel('Error integral')
 legend('pressure control')
 ylabel('Error integral')
+xlabel('Time (s)')
+
+ax(5) = subplot(5,1,5);
+hold on
+plot(out.t,sqrt(1e3)*out.control.kv_ideal)
+plot(out.t,sqrt(1e3)*out.control.kv_rv)
+legend('kv_ideal','kv_rv')
+ylabel('valve coefficient (L/s/kPa^{1/2})')
 xlabel('Time (s)')
 
 linkaxes(ax,'x')
