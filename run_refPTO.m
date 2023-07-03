@@ -340,10 +340,9 @@ plot(out.t,out.q_h,'k-')
 hold on
 plot(out.t,out.q_l,'k--')
 plot(out.t,out.q_sv,'b')
-plot(out.t,out.q_aPRV+out.q_bPRV,'r')
 xlabel('Time (s)')
 ylabel('Flow rate (Lpm)')
-legend('q_{h}','q_{l}','q_{sv}','q_{aPRV} + q_{bPRV}')
+legend('q_{h}','q_{l}','q_{sv}')
 
 linkaxes(ax,'x');
 

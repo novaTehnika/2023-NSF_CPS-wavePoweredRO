@@ -169,22 +169,6 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     % par.p_c = .65e6;
 
     % Pressure relief valves
-         % WEC-driven pump chamber 'a'
-    maxPressure = 10e6; % [Pa]
-    margin = 5e4; % [Pa]
-    maxFlow = 100e-3; % [m^3/s]
-    par.aPRV.p_crack = maxPressure - margin;
-    par.aPRV.C = (maxPressure^(3/2) ...
-                 - (maxPressure-margin)*maxPressure^(1/2))/maxFlow;
-
-         % WEC-driven pump chamber 'b'
-    maxPressure = 10e6; % [Pa]
-    margin = 5e4; % [Pa]
-    maxFlow = 100e-3; % [m^3/s]
-    par.bPRV.p_crack = maxPressure - margin;
-    par.bPRV.C = (maxPressure^(3/2) ...
-                 - (maxPressure-margin)*maxPressure^(1/2))/maxFlow;
-
      % low-pressure inlet to WEC-driven pump/outlet of charge pump
     maxPressure = 10e6; % [Pa]
     margin = 5e4; % [Pa]

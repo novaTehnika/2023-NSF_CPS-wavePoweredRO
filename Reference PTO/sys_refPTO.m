@@ -80,11 +80,9 @@ nonState = nonStateVars(t,y,control,par);
 dydt = zeros(9 + par.WEC.ny_rad,1);
 
 dydt(iyp_a) = 1/nonState.C_a*(par.D_WEC*y(iytheta_dot) - nonState.q_sv ...
-                + nonState.q_ain - nonState.q_aout ...
-                - nonState.q_aPRV + nonState.q_bPRV);
+                + nonState.q_ain - nonState.q_aout);
 dydt(iyp_b) = 1/nonState.C_b*(-par.D_WEC*y(iytheta_dot) + nonState.q_sv ...
-                + nonState.q_bin - nonState.q_bout ...
-                + nonState.q_aPRV - nonState.q_bPRV);
+                + nonState.q_bin - nonState.q_bout);
 
 dydt(iyp_l) = 1/nonState.C_l*(nonState.q_c ...
                 - nonState.q_ain - nonState.q_bin ...
@@ -222,8 +220,6 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         nonState.q_c = (dP_SO < 0)* sqrt(dP_SO/par.cq);
 
         % Pressure relief valves
-        nonState.q_aPRV = flowPRV(y(iyp_a),par.aPRV.p_crack,par.aPRV.C);
-        nonState.q_bPRV = flowPRV(y(iyp_b),par.bPRV.p_crack,par.bPRV.C);
         nonState.q_lPRV = flowPRV(y(iyp_l),par.lPRV.p_crack,par.lPRV.C);
         nonState.q_hPRV = flowPRV(y(iyp_h),par.hPRV.p_crack,par.hPRV.C);
         nonState.q_roPRV = flowPRV(y(iyp_ro),par.roPRV.p_crack,par.roPRV.C);

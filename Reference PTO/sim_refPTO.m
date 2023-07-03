@@ -155,8 +155,6 @@ stateIndex_refPTO % load state indices
     out.q_bin = [nonState(:).q_bin]';
     out.q_bout = [nonState(:).q_bout]';
     out.q_sv = [nonState(:).q_sv]';
-    out.q_aPRV = [nonState(:).q_aPRV]';
-    out.q_bPRV = [nonState(:).q_bPRV]';
 
     out.q_h = [nonState(:).q_aout]' + [nonState(:).q_bout]';
     out.q_l = [nonState(:).q_ain]' + [nonState(:).q_bin]';
@@ -200,10 +198,6 @@ stateIndex_refPTO % load state indices
     out.power.P_aout = out.q_aout.*(out.p_a-out.p_h);
     out.power.P_bin = out.q_bin.*(out.p_l-out.p_b);
     out.power.P_bout = out.q_bout.*(out.p_b-out.p_h);
-    
-     % Pressure relief valves
-    out.power.P_aPRV = out.q_aPRV.*(out.p_a-out.p_b);
-    out.power.P_bPRV = out.q_bPRV.*(out.p_b-out.p_a);
 
     % Pump/motor and generator
     out.power.P_pmLoss = (out.p_l - out.p_h).*out.q_pm ...
@@ -284,8 +278,8 @@ stateIndex_refPTO % load state indices
     P_in = out.power.P_WEC;
     P_out = out.q_perm.*(out.p_ro - out.par.p_o);
     P_loss = out.power.P_wpLoss + out.power.P_sv...
-            + out.power.P_ain + out.power.P_aout + out.power.P_aPRV ...
-            + out.power.P_bin + out.power.P_bout + out.power.P_bPRV ...
+            + out.power.P_ain + out.power.P_aout ...
+            + out.power.P_bin + out.power.P_bout ...
             + out.power.P_pmLoss + out.power.P_genLoss ...
             + out.power.P_rv ...
             + out.power.P_cLoss ...
