@@ -12,8 +12,6 @@ display(['file ',num2str(j),' of ',num2str(nfiles)])
         PP_rv_array(iVar) = PP_rv;
         PP_hPRV_array(iVar) = PP_hPRV;
         PP_roPRV_array(iVar) = PP_roPRV;
-        PP_aPRV_array(iVar) = PP_aPRV;
-        PP_bPRV_array(iVar) = PP_bPRV;
         dpdt_max_array(iVar) = dpdt_max;
         dpdt_97_array(iVar) = dpdt_97;
 
@@ -51,8 +49,6 @@ for j = 1:length(notDone)
     PP_rv_array(iVar) = nan;
     PP_hPRV_array(iVar) = nan;
     PP_roPRV_array(iVar) = nan;
-    PP_aPRV_array(iVar) = nan;
-    PP_bPRV_array(iVar) = nan;
     dpdt_max_array(iVar) = nan;
     dpdt_97_array(iVar) = nan;
 
@@ -87,8 +83,6 @@ for i = 1:I
             PP_rv_3D(i,j,k) = PP_rv_array(m);
             PP_hPRV_3D(i,j,k) = PP_hPRV_array(m);
             PP_roPRV_3D(i,j,k) = PP_roPRV_array(m);
-            PP_aPRV_3D(i,j,k) = PP_aPRV_array(m);
-            PP_bPRV_3D(i,j,k) = PP_bPRV_array(m);
             dpdt_max_3D(i,j,k) = dpdt_max_array(m);
             dpdt_97_3D(i,j,k) = dpdt_97_array(m);
 
@@ -210,7 +204,7 @@ ylim([0 max(Y)])
    
   % selct variable to plot
   Y = dpdt_max_3D;
-  Y = dpdt_97_3D;
+  % Y = dpdt_97_3D;
 
 black = [0 0 0];
 maroon = [122 0 25]/256;
@@ -284,7 +278,7 @@ xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('rate of change in pressure (kPa/s)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title(['Mean Power Loss With Active Ripple Control'],...
+title(['Maximum Rate of Change in Pressure With Active Ripple Control'],...
 'Interpreter','latex','FontSize',fontSize,'fontname','Times')
 
 leg = legend(legLabels);
