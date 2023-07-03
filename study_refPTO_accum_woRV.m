@@ -155,11 +155,9 @@ PP_wp = mean(out.power.P_wp(it_vec));
 PP_rv = mean(out.power.P_rv(it_vec));
 PP_hPRV = mean(out.power.P_hPRV(it_vec));
 PP_roPRV = mean(out.power.P_roPRV(it_vec));
-PP_aPRV = mean(out.power.P_bPRV(it_vec));
-PP_bPRV = mean(out.power.P_bPRV(it_vec));
-dpdt_max = max(abs(out.y(it_vec,iyp_ro)));
+dpdt_max = max(abs(out.dydt(it_vec,iyp_ro)));
 
-dist_dpdt = statsTimeVar_cdf(out.t(it_vec),abs(out.y(it_vec,iyp_ro)));
+dist_dpdt = statsTimeVar_cdf(out.t(it_vec),abs(out.dydt(it_vec,iyp_ro)));
 dpdt_97 = dist_dpdt.xi(find(dist_dpdt.f > 0.97,1,'first'));
 
 if ~saveSimData
