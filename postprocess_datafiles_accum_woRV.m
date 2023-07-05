@@ -20,10 +20,10 @@ display(['file ',num2str(j),' of ',num2str(nfiles)])
 end
 
 
-%% Plot aximum Rate of Change in Pressure as a function of total accumulator volume
+%% Plot Maximum Rate of Change in Pressure as a function of total accumulator volume
 X = 1e3*Vtotal;
 % selct variable to plot
-  Y = 1e-3*dpdt_max;
+  Y = 1e-3*dpdt_max_array;
 
 black = [0 0 0];
 maroon = [122 0 25]/256;
@@ -55,9 +55,11 @@ ax1.FontSize = fontSize-1;
 
 hold on
 
-p(k,i) = plot(X,Y, ...
-    'LineStyle', linestyles{i}, ...
-    'Color',color(k,:), ...
+plot(X([1 end]),1e-3*par.control.dpdt_ROmax*[1 1],'--k')
+legLabels(1) = convertCharsToStrings( ...
+        ['target limit']);
+
+p = plot(X,Y,'-k', ...
     'LineWidth',1);
 
 xlabel('volume (L)', ...
@@ -70,7 +72,7 @@ title(['Maximum Rate of Change in Pressure Without Ripple Control Valve'],...
 leg = legend(legLabels);
 leg.FontSize = fontSize-1;
 leg.FontName = 'Times';
-rect = [0.5, -0.2, 0.25, 0.15];
+% rect = [0.5, -0.2, 0.25, 0.15];
 % set(leg, 'Position', rect)
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')

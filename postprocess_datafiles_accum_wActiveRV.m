@@ -180,7 +180,7 @@ xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('power (kW)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title(['Mean Power Loss With Active Ripple Control'],...
+title(['Mean Power Loss With Active Ripple Control: RV Losses'],...
 'Interpreter','latex','FontSize',fontSize,'fontname','Times')
 
 leg = legend(legLabels);
@@ -191,7 +191,99 @@ rect = [0.5, -0.2, 0.25, 0.15];
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')
 xlim([0 1e3*max(Vtotal)])
-ylim([0 max(Y)])
+% ylim([0 max(Y(:))])
+
+%% Plot average power loss from pressure relief valves as a function of total accumulator volume for distribution (color) and valve coefficient (line type)
+ % select indices to plot
+    % distribution
+    iiK = 1:4:K;
+    nK = length(iiK);
+    % valve coeff.
+    iiI = 1:2:I;
+    nI = length(iiI);
+   
+  % selct variable to plot
+  Y = PP_roPRV_3D + PP_hPRV_3D;
+
+black = [0 0 0];
+maroon = [122 0 25]/256;
+gold = [255 204 51]/256;
+blue = [0 75 135]/256;
+orange = [226 100 55]/256;
+green = [63 150 87]/256;
+color = [maroon; gold; blue; orange; green];
+
+linestyles = {'-', '--', ':', '-.'};
+
+bottomEdge = 1;
+leftEdge = 3;
+width = 3.5625; % one column: 3+9/16, two column: 7.5
+height = 3.25;
+fontSize = 9;
+lineWidth = 1;
+
+clearvars leg
+
+fig = figure;
+fig.Units = 'inches';
+fig.Position = [leftEdge bottomEdge width height ];
+
+n_plots = 1;
+ax1 = subplot(n_plots,1,1);
+ax1.FontName = 'times';
+ax1.FontSize = fontSize-1;
+
+hold on
+
+% dummy plots for legend
+iLeg = 0;
+
+ % color - total volume
+for k = 1:nK
+    scatter(-99*[1, 0.5],-99*[1, 0.5],50, ...
+        'filled','s','LineWidth',2,...
+        'MarkerEdgeColor',color(k,:),'MarkerFaceColor',color(k,:));
+    iLeg = iLeg+1;
+    legLabels(iLeg) = convertCharsToStrings( ...
+        ['fraction at RO inlet = ',num2str(X(iiK(k)))]);
+end
+
+for i = 1:nI
+    plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
+    iLeg = iLeg+1;
+    legLabels(iLeg) = convertCharsToStrings( ...
+        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000)),'(L/s/kPa^{1/2})']);
+end
+
+% plot real data
+
+for k = 1:nK
+    for i = 1:nI
+        p(k,i) = plot(Vtotal*1e3,1e-3*Y(iiI(i),:,iiK(k)), ...
+            'LineStyle', linestyles{i}, ...
+            'Color',color(k,:), ...
+            'LineWidth',1);
+        p(k,i).HandleVisibility='off';
+    end
+end
+
+
+xlabel('volume (L)', ...
+'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
+ylabel('power (kW)', ...
+'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
+title(['Mean Power Loss With Active Ripple Control: PRV Losses'],...
+'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+
+leg = legend(legLabels);
+leg.FontSize = fontSize-1;
+leg.FontName = 'Times';
+rect = [0.5, -0.2, 0.25, 0.15];
+% set(leg, 'Position', rect)
+set(leg, 'Location', 'best')
+% set(leg, 'Location', 'southoutside')
+xlim([0 1e3*max(Vtotal)])
+% ylim([0 1e-3*max(Y(:))])
 
 %% Plot rate of change as a function of total accumulator volume for distribution (color) and valve coefficient (line type)
  % select indices to plot
@@ -289,4 +381,4 @@ rect = [0.5, -0.2, 0.25, 0.15];
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')
 xlim([0 1e3*max(Vtotal)])
-ylim([0 max(Y)])
+% ylim([0 max(Y)])
