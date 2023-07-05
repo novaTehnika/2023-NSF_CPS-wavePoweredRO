@@ -123,8 +123,9 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         %% Feedforward control of active RO inlet valve
         % determine ideal valve coefficient to satisfy dpdt limit
         C_ro = capAccum(y(iyp_ro),par.pc_ro,par.Vc_ro,par.f,par);
-        q_ro = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm) ...
-                /(~par.ERUconfig*par.Y + par.ERUconfig);
+        q_perm = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm); 
+        q_ro = q_perm*(~par.ERUconfig/par.Y ...
+                      + par.ERUconfig*(1-par.eta_ERUv^2*(1-par.Y))/par.Y);
         dp = y(iyp_h) - y(iyp_ro);
         control.kv_ideal = (sign(dp)*C_ro*par.control.dpdt_ROmax + q_ro) ...
                 /sqrt(abs(dp));
