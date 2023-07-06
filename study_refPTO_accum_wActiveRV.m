@@ -80,9 +80,9 @@ addpath('Utilities')
 %% %%%%%%%%%%%%   SIMULATION PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Simulation timeframe
-par.Tramp = 250; % [s] excitation force ramp period
+par.Tramp = 25; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 500; %[s] end time of simulation
+par.tend = 50; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -114,7 +114,8 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
 % par.control.p_ro_nom = 7e6; % [Pa]
 
-% par.ERUconfig = 1;
+% par.ERUconfig.present = 1;
+% par.ERUconfig.outlet = 1;
 
 % par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
 % par.rvConfig = (1)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive

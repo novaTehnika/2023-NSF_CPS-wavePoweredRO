@@ -89,9 +89,12 @@ dydt(iyp_l) = 1/nonState.C_l*(nonState.q_c ...
                 + nonState.q_pm - nonState.q_ERUfeed ...
                 - nonState.q_lPRV + nonState.q_hPRV + nonState.q_roPRV);
 dydt(iyp_h) = 1/nonState.C_h*(nonState.q_aout + nonState.q_bout ...
-                - nonState.q_pm - nonState.q_rv - nonState.q_hPRV);
+                - nonState.q_pm ...
+                + (~par.ERUconfig.outlet)*nonState.q_ERUfeed ...
+                - nonState.q_rv - nonState.q_hPRV);
 dydt(iyp_ro) = 1/nonState.C_ro*(nonState.q_rv - nonState.q_feed ...
-                + nonState.q_ERUfeed - nonState.q_roPRV);
+                + par.ERUconfig.outlet*nonState.q_ERUfeed ...
+                - nonState.q_roPRV);
 
 dydt(iycontrol) = dydt_control;
 
@@ -123,9 +126,10 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         %% Feedforward control of active RO inlet valve
         % determine ideal valve coefficient to satisfy dpdt limit
         C_ro = capAccum(y(iyp_ro),par.pc_ro,par.Vc_ro,par.f,par);
-        q_perm = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm); 
-        q_ro = q_perm*(~par.ERUconfig/par.Y ...
-                      + par.ERUconfig*(1-par.eta_ERUv^2*(1-par.Y))/par.Y);
+        q_perm = par.Sro*par.Aperm*(y(iyp_ro) - par.p_perm - par.p_osm);
+        ERUfeedFlow = par.ERUconfig.present*par.ERUconfig.outlet;
+        q_ro = q_perm*((~ERUfeedFlow)/par.Y ...
+                      + ERUfeedFlow*(1-par.eta_ERUv^2*(1-par.Y))/par.Y);
         dp = y(iyp_h) - y(iyp_ro);
         control.kv_ideal = (sign(dp)*C_ro*par.control.dpdt_ROmax + q_ro) ...
                 /sqrt(abs(dp));
@@ -219,7 +223,8 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
 
          % ERU
         nonState.q_brine = nonState.q_feed - nonState.q_perm;
-        nonState.q_ERUfeed = par.ERUconfig*(par.eta_ERUv)^2*nonState.q_brine;
+        nonState.q_ERUfeed = par.ERUconfig.present ...
+                             *(par.eta_ERUv)^2*nonState.q_brine;
 
         % Charge Pump
         dP_SO = (y(iyp_l) - par.p_o) - par.cn*par.w_c^2; % difference between shut-off pressure and current pressure differential

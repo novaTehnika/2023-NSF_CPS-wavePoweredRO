@@ -112,7 +112,8 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
 % par.control.p_ro_nom = 7e6; % [Pa]
 
-% par.ERUconfig = 1;
+% par.ERUconfig.present = 1;
+% par.ERUconfig.outlet = 1;
 
 par.rvIncluded = 0; % RO inlet valve is 1 - present, 0 - absent
 par.rvConfig = (0)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
