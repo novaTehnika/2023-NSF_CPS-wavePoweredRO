@@ -80,9 +80,9 @@ addpath('Utilities')
 %% %%%%%%%%%%%%   SIMULATION PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Simulation timeframe
-par.Tramp = 25; % [s] excitation force ramp period
+par.Tramp = 250; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 50; %[s] end time of simulation
+par.tend = 500; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -187,7 +187,7 @@ end
 timeStamp = datestr(now,'yyyymmddTHHMMSS'); % time in ISO8601
 
 % Save data
-filename = ['data_refPTO_accum_wActiveRV_', ...
+filename = ['data_refPTO_accum_wActiveRV_ERUupstream', ...
             datestr(now,'yyyymmdd'),'_', ...
             num2str(iVar)];
 save(filename)
