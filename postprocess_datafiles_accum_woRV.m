@@ -22,8 +22,17 @@ end
 
 %% Plot Maximum Rate of Change in Pressure as a function of total accumulator volume
 X = 1e3*Vtotal;
-% selct variable to plot
-  Y = 1e-3*dpdt_max_array;
+
+% select variable to plot
+maxOr97 = 1;
+switch maxOr97
+  case 1
+    Y = 1e-3*dpdt_max_array;
+    varTitle = 'Maximum Rate of Change in Pressure';
+  case 2
+    Y = 1e-3*dpdt_97_array;
+    varTitle = '97th Percentile Rate of Change in Pressure';
+end
 
 black = [0 0 0];
 maroon = [122 0 25]/256;
@@ -37,7 +46,7 @@ linestyles = {'-', '--', ':', '-.'};
 
 bottomEdge = 1;
 leftEdge = 3;
-width = 3.5625; % one column: 3+9/16, two column: 7.5
+width = 7.5; % one column: 3+9/16, two column: 7.5
 height = 3.25;
 fontSize = 9;
 lineWidth = 1;
@@ -66,7 +75,7 @@ xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('rate of change in pressure (kPa/s)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title(['Maximum Rate of Change in Pressure Without Ripple Control Valve'],...
+title([varTitle,' Without Ripple Control Valve'],...
 'Interpreter','latex','FontSize',fontSize,'fontname','Times')
 
 leg = legend(legLabels);
@@ -77,4 +86,4 @@ leg.FontName = 'Times';
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')
 % xlim([0 max(Vtotal)])
-% ylim([0 max(Y)])
+ylim([0 1e-3*1.5*par.control.dpdt_ROmax])

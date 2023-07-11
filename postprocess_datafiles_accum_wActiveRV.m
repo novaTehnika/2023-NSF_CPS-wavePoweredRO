@@ -125,7 +125,7 @@ linestyles = {'-', '--', ':', '-.'};
 
 bottomEdge = 1;
 leftEdge = 3;
-width = 3.5625; % one column: 3+9/16, two column: 7.5
+width = 7.5; % one column: 3+9/16, two column: 7.5
 height = 3.25;
 fontSize = 9;
 lineWidth = 1;
@@ -180,18 +180,30 @@ xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('power (kW)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title(['Mean Power Loss With Active Ripple Control: RV Losses'],...
-'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+switch par.ERUconfig.outlet
+    case 0
+        title(['Mean Power Loss With Active Ripple Control and ERU Feed Upstream of Valve: Ripple Control Valve Losses'],...
+        'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+    case 1
+        title(['Mean Power Loss With Active Ripple Control and ERU Feed Downstream of Valve: Ripple Control Valve Losses'],...
+        'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+end
 
 leg = legend(legLabels);
 leg.FontSize = fontSize-1;
 leg.FontName = 'Times';
-rect = [0.5, -0.2, 0.25, 0.15];
+% rect = [0.5, -0.2, 0.25, 0.15];
 % set(leg, 'Position', rect)
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')
 xlim([0 1e3*max(Vtotal)])
-% ylim([0 max(Y(:))])
+switch par.ERUconfig.outlet
+    case 0
+        ylim([0 150])
+    case 1
+        ylim([0 15])
+end
+
 
 %% Plot average power loss from pressure relief valves as a function of total accumulator volume for distribution (color) and valve coefficient (line type)
  % select indices to plot
@@ -217,7 +229,7 @@ linestyles = {'-', '--', ':', '-.'};
 
 bottomEdge = 1;
 leftEdge = 3;
-width = 3.5625; % one column: 3+9/16, two column: 7.5
+width = 7.5; % one column: 3+9/16, two column: 7.5
 height = 3.25;
 fontSize = 9;
 lineWidth = 1;
@@ -272,8 +284,14 @@ xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('power (kW)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title(['Mean Power Loss With Active Ripple Control: PRV Losses'],...
-'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+switch par.ERUconfig.outlet
+    case 0
+        title(['Mean Power Loss With Active Ripple Control and ERU Feed Outlet Upstream of Valve: PRV Losses'],...
+        'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+    case 1
+        title(['Mean Power Loss With Active Ripple Control and ERU Feed Outlet Downstream of Valve: PRV Losses'],...
+        'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+end
 
 leg = legend(legLabels);
 leg.FontSize = fontSize-1;
@@ -294,9 +312,16 @@ xlim([0 1e3*max(Vtotal)])
     iiI = 1:2:I;
     nI = length(iiI);
    
-  % selct variable to plot
-  Y = dpdt_max_3D;
-  % Y = dpdt_97_3D;
+  % select variable to plot
+  maxOr97 = 1;
+  switch maxOr97
+      case 1
+        Y = dpdt_max_3D;
+        varTitle = 'Maximum Rate of Change in Pressure';
+      case 2
+        Y = dpdt_97_3D;
+        varTitle = '97th Percentile Rate of Change in Pressure';
+  end
 
 black = [0 0 0];
 maroon = [122 0 25]/256;
@@ -310,7 +335,7 @@ linestyles = {'-', '--', ':', '-.'};
 
 bottomEdge = 1;
 leftEdge = 3;
-width = 3.5625; % one column: 3+9/16, two column: 7.5
+width = 7.5; % one column: 3+9/16, two column: 7.5
 height = 3.25;
 fontSize = 9;
 lineWidth = 1;
@@ -361,7 +386,7 @@ for k = 1:nK
 end
 
 % plot target limit
-iLeg = iLeg+1;;
+iLeg = iLeg+1;
 plot(Vtotal([1 end])*1e3,1e-3*par.control.dpdt_ROmax*[1 1])
 legLabels(iLeg) = convertCharsToStrings( ...
         ['target limit']);
@@ -370,8 +395,14 @@ xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('rate of change in pressure (kPa/s)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title(['Maximum Rate of Change in Pressure With Active Ripple Control'],...
-'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+switch par.ERUconfig.outlet
+    case 0
+        title([varTitle,' With Active Ripple Control and ERU Feed Outlet Upstream of Valve'],...
+        'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+    case 1
+        title([varTitle,' With Active Ripple Control and ERU Feed Outlet Downstream of Valve'],...
+        'Interpreter','latex','FontSize',fontSize,'fontname','Times')
+end
 
 leg = legend(legLabels);
 leg.FontSize = fontSize-1;
@@ -381,4 +412,4 @@ rect = [0.5, -0.2, 0.25, 0.15];
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')
 xlim([0 1e3*max(Vtotal)])
-% ylim([0 max(Y)])
+ylim([0 1e-3*1.5*par.control.dpdt_ROmax])
