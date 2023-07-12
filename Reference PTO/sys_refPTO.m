@@ -116,8 +116,8 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
             + par.control.w_pm_ctrl.ki*y(iy_errInt_p_filt));
         nomAboveMax = w_pm_nom > par.control.w_pm_ctrl.max;
         nomBelowMin = w_pm_nom < par.control.w_pm_ctrl.min;
-        p_hAbovep_ro = par.rvIncluded*(y(iyp_h) > y(iyp_ro)) ...
-                    + ~par.rvIncluded;
+        p_hAbovep_ro = par.rvConfig.included*(y(iyp_h) > y(iyp_ro)) ...
+                    + ~par.rvConfig.included;
         control.w_pm = p_hAbovep_ro*(w_pm_nom ...
                   + nomAboveMax*(par.control.w_pm_ctrl.max - w_pm_nom) ...
                   + nomBelowMin*(par.control.w_pm_ctrl.min - w_pm_nom)) ...
@@ -136,7 +136,7 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
         % satisfy conditions related to limitations, control objectives, 
         % and configuration
         p_roAbovepc_ro = y(iyp_ro) > par.pc_ro;
-        rvOpen = ~p_roAbovepc_ro | ~par.rvConfig; % cond.s for valve full open
+        rvOpen = ~p_roAbovepc_ro | ~par.rvConfig.active; % cond.s for valve full open
         control.kv_rv = ~rvOpen*max(0,min(par.kv_rv,control.kv_ideal)) ...
                        + rvOpen*par.kv_rv;
                       
@@ -218,8 +218,8 @@ dydt(iyrad) = dydt_WEC(3:end); % radiation damping states for WEC model
          % RO inlet valve
         dp = y(iyp_h) - y(iyp_ro);
         nonState.q_rv = control.kv_rv*( ...
-                        par.rvIncluded*sqrt(abs(dp))*sign(dp) ...
-                        + ~par.rvIncluded*dp);
+                        par.rvConfig.included*sqrt(abs(dp))*sign(dp) ...
+                        + ~par.rvConfig.included*dp);
 
          % ERU
         nonState.q_brine = nonState.q_feed - nonState.q_perm;

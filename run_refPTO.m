@@ -101,18 +101,24 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-% par.control.p_ro_nom = 7e6; % [Pa]
+p_ro_nom = [5e6 7e6 8e6 7e6 7e6 7e6]; % [Pa]
+par.control.p_ro_nom = p_ro_nom(SS);
+par.duty_sv = 0.0;
 
 % par.ERUconfig.present = 1;
 % par.ERUconfig.outlet = 1;
 
-% par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
-% par.rvConfig = (1)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
+% Configuration
+par.ERUconfig.present = 1;
+par.ERUconfig.outlet = 1;
+
+par.rvConfig.included = 1; % RO inlet valve is 1 - present, 0 - absent
+par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
 % dp_rated = 1e5; % [Pa] 
 % q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
 
-par.duty_sv = 0.0;
+
 
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

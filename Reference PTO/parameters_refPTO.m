@@ -141,7 +141,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.control.p_h_nom = 6e6; % [Pa]
     par.control.p_ro_nom = par.control.p_h_nom; % [Pa] (not actually used as control ref.)
     par.control.p_l_nom = 0.5e6; % [Pa] (not actually used as control ref.)
-    par.control.p_ro_max = 8.2e6; % [Pa]
+    par.control.p_ro_max = 8.3e6; % [Pa]
     par.control.p_ro_min = max(3e6,par.pc_ro); % [Pa]
 
      % Signal filtering
@@ -154,8 +154,8 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.control.w_pm_ctrl.ki = 0*5e-6;
 
     % RO inlet valve for pressure ripple reduction
-    par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
-    par.rvConfig = (1)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
+    par.rvConfig.included = 1; % RO inlet valve is 1 - present, 0 - absent
+    par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
     dp_rated = 1e5; % [Pa] 
     q_rated = 50e-3; % [m^3/s]
     par.kv_rv = q_rated/sqrt(dp_rated);
