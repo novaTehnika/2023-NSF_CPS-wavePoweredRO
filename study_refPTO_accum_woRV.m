@@ -78,9 +78,9 @@ addpath('Utilities')
 %% %%%%%%%%%%%%   SIMULATION PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Simulation timeframe
-par.Tramp = 250; % [s] excitation force ramp period
+par.Tramp = 1; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 500; %[s] end time of simulation
+par.tend = 1; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -92,10 +92,11 @@ if mod(par.downSampledStepSize,par.MaxStep)
 end
 
 % Sea State and Wave construction parameters
-% Hs = [2.34 2.64 5.36 2.05 5.84 3.25];
-% Tp = [7.31 9.86 11.52 12.71 15.23 16.5];
-par.wave.Hs = 2.64;
-par.wave.Tp = 9.86;
+Hs = [2.34 2.64 5.36 2.05 5.84 3.25];
+Tp = [7.31 9.86 11.52 12.71 15.23 16.5];
+SS = 2;
+par.wave.Hs = Hs(SS);
+par.wave.Tp = Tp(SS);
 par.WEC.nw = 1000; % num. of frequency components for harmonic superposition
 par.wave.rngSeedPhase = 3; % seed for the random number generator
 
@@ -110,24 +111,25 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-% par.control.p_ro_nom = 7e6; % [Pa]
+p_ro_nom = [5e6 7e6 8e6 7e6 7e6 7e6]; % [Pa]
+par.control.p_ro_nom = p_ro_nom(SS);
+par.duty_sv = 0;
 
-% par.ERUconfig.present = 1;
-% par.ERUconfig.outlet = 1;
+% Configuration
+par.ERUconfig.present = 1;
+par.ERUconfig.outlet = 1;
 
-par.rvIncluded = 0; % RO inlet valve is 1 - present, 0 - absent
-par.rvConfig = (0)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
+par.rvConfig.included = 0; % RO inlet valve is 1 - present, 0 - absent
+par.rvConfig.active = (0)*par.included; % RO inlet valve is 1 - active, 0 - passive
 dp_rated = 1e5; % [Pa] 
 q_rated = 1000e-3; % [(lpm) -> m^3/s]
 par.kv_rv = q_rated/dp_rated;
-
-par.duty_sv = 0;
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % total accumulator volume
 
 nVar = 15;
-Vtotal = 1e-3*logspace(log10(1e3),log10(50e3),nVar);% [L->m^3] total accumulator volume
+Vtotal = 1e-3*logspace(log10(5e3),log10(20e3),nVar);% [L->m^3] total accumulator volume
 
 saveSimData = 1; % save simulation data (1) or just output variables (0)
 

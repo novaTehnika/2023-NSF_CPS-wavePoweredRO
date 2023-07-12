@@ -94,10 +94,11 @@ if mod(par.downSampledStepSize,par.MaxStep)
 end
 
 % Sea State and Wave construction parameters
-% Hs = [2.34 2.64 5.36 2.05 5.84 3.25];
-% Tp = [7.31 9.86 11.52 12.71 15.23 16.5];
-par.wave.Hs = 2.64;
-par.wave.Tp = 9.86;
+Hs = [2.34 2.64 5.36 2.05 5.84 3.25];
+Tp = [7.31 9.86 11.52 12.71 15.23 16.5];
+SS = 2;
+par.wave.Hs = Hs(SS);
+par.wave.Tp = Tp(SS);
 par.WEC.nw = 1000; % num. of frequency components for harmonic superposition
 par.wave.rngSeedPhase = 3; % seed for the random number generator
 
@@ -112,18 +113,19 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-% par.control.p_ro_nom = 7e6; % [Pa]
+p_ro_nom = [5e6 7e6 8e6 7e6 7e6 7e6]; % [Pa]
+par.control.p_ro_nom = p_ro_nom(SS);
+par.duty_sv = 0;
 
-% par.ERUconfig.present = 1;
-% par.ERUconfig.outlet = 1;
+% Configuration
+par.ERUconfig.present = 1;
+par.ERUconfig.outlet = 1;
 
-par.rvIncluded = 1; % RO inlet valve is 1 - present, 0 - absent
-par.rvConfig = (0)*par.rvIncluded; % RO inlet valve is 1 - active, 0 - passive
+par.rvConfig.included = 1; % RO inlet valve is 1 - present, 0 - absent
+par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
 % dp_rated = 1e5; % [Pa] 
 % q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
-
-par.duty_sv = 0;
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % total accumulator volume
@@ -131,11 +133,11 @@ par.duty_sv = 0;
 % max valve coefficient
 
 nVar1 = 15;
-Vtotal = 1e-3*logspace(log10(1e3),log10(50e3),nVar1);% [L->m^3] total accumulator volume
+Vtotal = 1e-3*logspace(log10(5e3),log10(20e3),nVar1);% [L->m^3] total accumulator volume
 nVar2 = 9;
 X = linspace(0.1,0.9,nVar2); % [-] accumulator volume distribution 1 - all at RO inlet, 0 - all at motor inlet
 nVar3 = 5;
-kv = logspace(log10(1e-4),log10(1e-3),nVar3);% [m^3/s/Pa] max valve coefficient for ripple control valve
+kv = 1/sqrt(1000)*logspace(log10(0.5e-3),log10(1e-2),nVar3);% [(l/s/kPa^0.5)->m^3/s/Pa^0.5] max valve coefficient for ripple control valve
 
 [meshVar.Vtotal, meshVar.X, meshVar.kv] = meshgrid(Vtotal,X,kv);
 Vtotal_mesh = meshVar.Vtotal(:);
