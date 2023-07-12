@@ -21,6 +21,7 @@
 % This script is set up to be run as part of a SLURM job array. The
 % following lines are required before this script is called:
 %   iVar = ${SLURM_ARRAY_TASK_ID};
+%   SS=1;
 %
 % FILE DEPENDENCY:
 % ./Reference PTO/
@@ -96,7 +97,6 @@ end
 % Sea State and Wave construction parameters
 Hs = [2.34 2.64 5.36 2.05 5.84 3.25];
 Tp = [7.31 9.86 11.52 12.71 15.23 16.5];
-SS = 2;
 par.wave.Hs = Hs(SS);
 par.wave.Tp = Tp(SS);
 par.WEC.nw = 1000; % num. of frequency components for harmonic superposition
@@ -190,7 +190,7 @@ timeStamp = datestr(now,'yyyymmddTHHMMSS'); % time in ISO8601
 
 % Save data
 filename = ['data_refPTO_accum_wPassiveRV_', ...
-            datestr(now,'yyyymmdd'),'_', ...
+            datestr(now,'yyyymmdd'),'_',num2str(SS),'_' ...
             num2str(iVar)];
 save(filename)
 

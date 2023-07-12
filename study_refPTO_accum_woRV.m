@@ -19,6 +19,7 @@
 % This script is set up to be run as part of a SLURM job array. The
 % following lines are required before this script is called:
 %   iVar = ${SLURM_ARRAY_TASK_ID};
+%   SS=1;
 %
 % FILE DEPENDENCY:
 % ./Reference PTO/
@@ -174,7 +175,7 @@ timeStamp = datestr(now,'yyyymmddTHHMMSS'); % time in ISO8601
 
 % Save data
 filename = ['data_refPTO_accum_woRV_', ...
-            datestr(now,'yyyymmdd'),'_', ...
+            datestr(now,'yyyymmdd'),'_',num2str(SS),'_' ...
             num2str(iVar)];
 save(filename)
 

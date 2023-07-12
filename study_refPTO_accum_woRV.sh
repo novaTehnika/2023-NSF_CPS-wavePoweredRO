@@ -13,9 +13,10 @@ cd ~/2023-NSF_CPS-wavePoweredRO
 module load matlab
 matlab -nodisplay -r \
 "iVar = ${SLURM_ARRAY_TASK_ID}; \
+"SS = $SS; \
 study_refPTO_accum_woRV"
 
 # Commands to use
-# sbatch --array=1-15 ~/2023-NSF_CPS-wavePoweredRO/study_refPTO_accum_woRV.sh
+# sbatch --export=SS=1 --array=1-15 ~/2023-NSF_CPS-wavePoweredRO/study_refPTO_accum_woRV.sh
 # dos2unix  study_refPTO_accum_woRV.sh
 
