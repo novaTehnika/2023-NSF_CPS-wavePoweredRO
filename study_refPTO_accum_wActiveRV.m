@@ -81,9 +81,9 @@ addpath('Utilities')
 %% %%%%%%%%%%%%   SIMULATION PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Simulation timeframe
-par.Tramp = 0; % [s] excitation force ramp period
+par.Tramp = 250; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 1; %[s] end time of simulation
+par.tend = 500; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
