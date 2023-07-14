@@ -122,7 +122,7 @@ par.ERUconfig.present = 1;
 par.ERUconfig.outlet = 1;
 
 par.rvConfig.included = 1; % RO inlet valve is 1 - present, 0 - absent
-par.rvConfig.active = (1)*par.included; % RO inlet valve is 1 - active, 0 - passive
+par.rvConfig.active = (1)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
 % dp_rated = 1e5; % [Pa] 
 % q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
