@@ -4,7 +4,7 @@ nfiles = size(files,1);
 for j = 1:nfiles
 display(['file ',num2str(j),' of ',num2str(nfiles)])
     if strfind(files(j).name,"data_refPTO_accum_woRV")
-        load(files(j).name)
+        load(files(j).name,'-regexp','^(?!out)\w')
 
         q_permMean_array(iVar) = q_permMean;
         PP_WEC_array(iVar) = PP_WEC;
@@ -27,7 +27,7 @@ notDone = 1:15;
 for j = 1:nfiles
 display(['file ',num2str(j),' of ',num2str(nfiles)])
     if strfind(files(j).name,"data_refPTO_accum")
-        load(files(j).name)
+        load(files(j).name,'-regexp','^(?!out)\w')
         [r,c,val] = find(notDone==iVar);
         notDone = [notDone(1:c-1), notDone(c+1:end)];
         
