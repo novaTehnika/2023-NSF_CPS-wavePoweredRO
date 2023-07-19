@@ -108,22 +108,30 @@ clearvars test
 
 %% Plot average power loss from the ripple control valve as a function of total accumulator volume for distribution (color) and valve coefficient (line type)
  % select indices to plot
-    % distribution
-    iiK = 3:1:K-2;
-    nK = length(iiK);
-    % valve coeff.
-    iiI = 3:1:I;
-    nI = length(iiI);
+plotCase = 1;
+switch plotCase
+ case 1
+     iiK = 3:1:K-2; % distribution
+     iiI = 2:1:I;   % valve coeff.
+ case 2
+     iiK = 1:1:K;
+     iiI = 4;
+ case 3
+     iiK = 3;
+     iiI = 2:I;
+end
+nK = length(iiK);
+nI = length(iiI);
    
-  % select variable to plot
-  switch 1
-      case 1
-        YaxisVar = 100*PP_rv_3D./PP_WEC_3D;
-        varStr = 'Ripple Control Valve Losses';
-      case 2
-        YaxisVar = 100*(PP_roPRV_3D + PP_hPRV_3D)./PP_WEC_3D;
-        varStr = 'PRV Losses';
-  end
+ % select variable to plot
+switch 1
+  case 1
+    YaxisVar = 100*PP_rv_3D./PP_WEC_3D;
+    varStr = 'Ripple Control Valve Losses';
+  case 2
+    YaxisVar = 100*(PP_roPRV_3D + PP_hPRV_3D)./PP_WEC_3D;
+    varStr = 'PRV Losses';
+end
 
 black = [0 0 0];
 maroon = [122 0 25]/256;
@@ -131,7 +139,11 @@ gold = [255 204 51]/256;
 blue = [0 75 135]/256;
 orange = [226 100 55]/256;
 green = [63 150 87]/256;
-color = [maroon; gold; blue; orange; green];
+pink = [255 192 203]/256;
+blue1 = [0 150 255]/256;
+purple = [128 0 128]/256;
+green1 = [0 255 150]/256;
+color = [maroon; gold; blue; orange; green; pink; blue1; purple; green1];
 
 linestyles = {'-', '--', '-.', ':','-', '--', '-.', ':',};
 
@@ -172,7 +184,7 @@ for i = 1:nI
     plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
     iLeg = iLeg+1;
     legLabels(iLeg) = convertCharsToStrings( ...
-        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000)),'(L/s/kPa^{1/2})']);
+        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000),2),'(L/s/kPa^{1/2})']);
 end
 
 % plot real data
@@ -224,23 +236,31 @@ xlim([0 xLim(2)])
 
 %% Plot rate of change as a function of total accumulator volume for distribution (color) and valve coefficient (line type)
  % select indices to plot
-    % distribution
-    iiK = 3:1:K-2;
-    nK = length(iiK);
-    % valve coeff.
-    iiI = 3:1:I;
-    nI = length(iiI);
+plotCase = 1;
+switch plotCase
+ case 1
+     iiK = 2:1:K-2; % distribution
+     iiI = 3:1:I;   % valve coeff.
+ case 2
+     iiK = 1:1:K;
+     iiI = 4;
+ case 3
+     iiK = 3;
+     iiI = 2:I;
+end
+nK = length(iiK);
+nI = length(iiI);
    
-  % select variable to plot
-  maxOr97 = 1;
-  switch maxOr97
-      case 1
-        YaxisVar = dpdt_max_3D;
-        varTitle = 'Maximum Rate of Change in Pressure';
-      case 2
-        YaxisVar = dpdt_97_3D;
-        varTitle = '97th Percentile Rate of Change in Pressure';
-  end
+ % select variable to plot
+maxOr97 = 1;
+switch maxOr97
+  case 1
+    YaxisVar = dpdt_max_3D;
+    varTitle = 'Maximum Rate of Change in Pressure';
+  case 2
+    YaxisVar = dpdt_97_3D;
+    varTitle = '97th Percentile Rate of Change in Pressure';
+end
 
 black = [0 0 0];
 maroon = [122 0 25]/256;
@@ -248,7 +268,11 @@ gold = [255 204 51]/256;
 blue = [0 75 135]/256;
 orange = [226 100 55]/256;
 green = [63 150 87]/256;
-color = [maroon; gold; blue; orange; green];
+pink = [255 192 203]/256;
+blue1 = [0 150 255]/256;
+purple = [128 0 128]/256;
+green1 = [0 255 150]/256;
+color = [maroon; gold; blue; orange; green; pink; blue1; purple; green1];
 
 linestyles = {'-', '--', '-.', ':','-', '--', '-.', ':',};
 
@@ -289,7 +313,7 @@ for i = 1:nI
     plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
     iLeg = iLeg+1;
     legLabels(iLeg) = convertCharsToStrings( ...
-        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000)),'(L/s/kPa^{1/2})']);
+        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000),2),'(L/s/kPa^{1/2})']);
 end
 
 % plot real data
@@ -306,7 +330,7 @@ end
 
 % plot target limit
 iLeg = iLeg+1;
-plot(Vtotal([1 end]),1e-3*par.control.dpdt_ROmax*[1 1])
+plot(Vtotal([1 end]),1e-3*par.control.dpdt_ROmax*[1 1],'--r')
 legLabels(iLeg) = convertCharsToStrings( ...
         ['target limit']);
 
@@ -353,7 +377,7 @@ YaxisVar = 100*PP_rv_array./PP_WEC_array;
 bounds = [1.001 1 0.90 0.75 0.5 0];
 N = numel(bounds)-1; % Number of bins with bounds
 dpdt_ub = par.control.dpdt_ROmax*bounds;
-maxOr97 = 2;
+maxOr97 = 1;
 switch maxOr97
     case 1
         dpdt_metric = dpdt_max_array;
