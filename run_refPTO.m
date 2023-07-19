@@ -205,11 +205,26 @@ legend('p_{l}')
 ax(3) = subplot(3,1,3);
 plot(out.t,1e-5*out.dydt(:,iyp_ro))
 hold on
-plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[1 1],'--k')
-plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[-1 -1],'--k')
+
+dist_dpdt = statsTimeVar_cdf(out.t(it_vec),abs(out.dydt(it_vec,iyp_ro)));
+dpdt_97 = dist_dpdt.xi(find(dist_dpdt.f > 0.97,1,'first'));
+plot(out.t([1 end]),1e-5*dpdt_97*[1 1],'-.k')
+p(1) = plot(out.t([1 end]),1e-5*dpdt_97*[-1 -1],'-.k');
+p(1).HandleVisibility='off';
+
+dist_dpdt = statsTimeVar_cdf(out.t(it_vec),abs(out.dydt(it_vec,iyp_ro)));
+dpdt_99 = dist_dpdt.xi(find(dist_dpdt.f > 0.99,1,'first'));
+plot(out.t([1 end]),1e-5*dpdt_99*[1 1],'-.k')
+p(2) = plot(out.t([1 end]),1e-5*dpdt_99*[-1 -1],'--k');
+p(2).HandleVisibility='off';
+
+plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[1 1],'-r')
+p(3) = plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[-1 -1],'-r');
+p(3).HandleVisibility='off';
+
 xlabel('Time (s)')
 ylabel('Rate of change in pressure (bar/s)')
-legend('dpdt_{ro}','target limit')
+legend('dpdt_{ro}','+-97th p-tile |dpdt_{ro}|','+-99th p-tile |dpdt_{ro}|','target limit')
 
 linkaxes(ax,'x');
 
