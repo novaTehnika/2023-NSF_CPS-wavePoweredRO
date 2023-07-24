@@ -111,7 +111,7 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-p_ro_nom = [5e6 7e6 8e6 7e6 7e6 7e6]; % [Pa]
+p_ro_nom = [4.28e6 6.11e6 8e6 6.07e6 8e6 8e6]; % [Pa]
 par.control.p_ro_nom = p_ro_nom(SS);
 par.duty_sv = 0;
 
