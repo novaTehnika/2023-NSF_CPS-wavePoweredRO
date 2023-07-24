@@ -80,8 +80,7 @@ clearvars dpdt_metric dpdt_max_array dpdt_97_array ...
 rmpath(dataFolders)
 
 %% Plot power loss versus total accumulator volume for pareto optimal 
-% designs meeting threshhold on rate of pressure change
-
+plotDesignVars = 1;
 
 switch maxOr97
     case 1
@@ -103,17 +102,21 @@ markerType = '.ox*^s';
 bottomEdge = 1;
 leftEdge = 3;
 width = 7.5; % one column: 3+9/16, two column: 7.5
-height = 6;
+height = 2.5;
+if plotDesignVars; height = 7.5; end
 fontSize = 9;
 lineWidth = 1;
 
 clearvars leg
 
+xlimAdd = 5;
+
 fig = figure;
 fig.Units = 'inches';
 fig.Position = [leftEdge bottomEdge width height ];
 
-n_plots = 3;
+n_plots = 1;
+if plotDesignVars; n_plots = 3; end
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 iax = 1;
@@ -140,8 +143,11 @@ yLim = ylim;
 ylim([1e-1 yLim(2)])
 
 i = 3;
-p(iax,i) = semilogy([1 1]*Vtotal_woRV,[0 yLim(2)],'--k');
+try
+p(iax,i) = plot([1 1]*Vtotal_woRV,[1e-1 yLim(2)],'--k');
 p(iax,i).LineWidth = 1.5;
+catch
+end
 
 grid on
 xlabel('volume (1000L) ', ...
@@ -150,7 +156,7 @@ ylabel('power loss (x100\%)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 
 titleString = ['Power Loss Normalized to Mean Power Capture Versus Accumulator Volume',newline,...
-            'with ',varLabel,' Rate of Pressure Change Compared to Limit Less Than ',num2str(1e-3*dpdt_ub,2),' kPa/s',newline,...
+            'with ',varLabel,' Rate of Pressure Change Limited to ',num2str(1e-3*dpdt_ub,2),' kPa/s',newline,...
             'Sea State ',num2str(SS)];
 title(titleString,...
 'Interpreter','latex','FontSize',fontSize,'fontname','Times')
@@ -162,7 +168,9 @@ leg.FontName = 'Times';
 % set(leg, 'Position', rect)
 set(leg, 'Location', 'best')
 xLim = xlim;
-xlim([0 xLim(2)])
+xlim([0 xLim(2)+xlimAdd])
+
+if ~plotDesignVars; return; end
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % distribution of accumulators versus total volume
@@ -192,9 +200,12 @@ xlabel('volume (1000L) ', ...
 ylabel('portion of volume at RO inlet (x100\%)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 xLim = xlim;
-xlim([0 xLim(2)])
+xlim([0 xLim(2)+xlimAdd])
 yLim = ylim;
 ylim([0 yLim(2)])
+
+title("Distribution of Accumulator Volume",...
+'Interpreter','latex','FontSize',fontSize,'fontname','Times')
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % distribution of accumulators versus total volume
@@ -224,7 +235,9 @@ xlabel('volume (1000L) ', ...
 ylabel('valve coefficient (L/s/sqrt(kPa))', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 xLim = xlim;
-xlim([0 xLim(2)])
+xlim([0 xLim(2)+xlimAdd])
 yLim = ylim;
 ylim([0 yLim(2)])
 
+title("Valve Specification",...
+'Interpreter','latex','FontSize',fontSize,'fontname','Times')
