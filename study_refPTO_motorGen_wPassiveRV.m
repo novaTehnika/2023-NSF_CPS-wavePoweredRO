@@ -82,7 +82,7 @@ addpath('Utilities')
 % Simulation timeframe
 par.Tramp = 250; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 500; %[s] end time of simulation
+par.tend = 2000; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -134,7 +134,7 @@ par.w_pm_max = (1750)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % motor/pump displacement
-Dpm = [100 200 400 600 800 1000]*1e-6/(2*pi);% [L->m^3] total accumulator volume
+Dpm = [100 200 400 600 800 1000 1500 2000 2500 3000]*1e-6/(2*pi);% [L->m^3] total accumulator volume
 nVar = numel(Dpm);
 
 saveSimData = 1; % save simulation data (1) or just output variables (0)
