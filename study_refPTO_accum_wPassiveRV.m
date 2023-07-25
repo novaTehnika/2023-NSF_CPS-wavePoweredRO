@@ -83,7 +83,7 @@ addpath('Utilities')
 % Simulation timeframe
 par.Tramp = 250; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 500; %[s] end time of simulation
+par.tend = 2000; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -138,9 +138,9 @@ par.w_pm_max = (3600)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
 nVar1 = 15;
 Vtotal = 1e-3*logspace(log10(5e3),log10(20e3),nVar1);% [L->m^3] total accumulator volume
 nVar2 = 9;
-X = linspace(0.1,0.9,nVar2); % [-] accumulator volume distribution 1 - all at RO inlet, 0 - all at motor inlet
-nVar3 = 5;
-kv = 1/sqrt(1000)*logspace(log10(0.5e-3),log10(1e-2),nVar3);% [(l/s/kPa^0.5)->m^3/s/Pa^0.5] max valve coefficient for ripple control valve
+X = linspace(0.1,0.5,nVar2); % [-] accumulator volume distribution 1 - all at RO inlet, 0 - all at motor inlet
+nVar3 = 10;
+kv = 1/sqrt(1000)*logspace(log10(0.5e-3),log10(1.5e-2),nVar3);% [(l/s/kPa^0.5)->m^3/s/Pa^0.5] max valve coefficient for ripple control valve
 
 [meshVar.Vtotal, meshVar.X, meshVar.kv] = meshgrid(Vtotal,X,kv);
 Vtotal_mesh = meshVar.Vtotal(:);
