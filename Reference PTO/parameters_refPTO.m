@@ -165,7 +165,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     % Charging system (Intake & Boost pump)
     par.cn = 7;
     par.cq = -1e6;
-    par.w_c = (3600)*2*pi/60; % [(rpm) -> rad/s]
+    par.w_c = (2000)*2*pi/60; % [(rpm) -> rad/s]
     par.eta_c = 0.7;  % pumping efficiency of pressure boost pump
     par.eta_m = 0.9;  % efficiency of charge pump motor
     % par.p_c = .65e6;
