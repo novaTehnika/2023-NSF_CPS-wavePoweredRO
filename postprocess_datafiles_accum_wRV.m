@@ -23,24 +23,35 @@ end
 
 files = dir;
 nfiles = size(files,1);
+Done = [];
 notDone = 1:675;
 for j = 1:nfiles
 display(['file ',num2str(j),' of ',num2str(nfiles)])
     if strfind(files(j).name,"data_refPTO_accum")
-        load(files(j).name,'-regexp','^(?!out)\w')
+        load(files(j).name,'iVar')
         [r,c,val] = find(notDone==iVar);
         notDone = [notDone(1:c-1), notDone(c+1:end)];
+        Done = [Done, iVar];
         
     end
 
+end
+
+try 
+    doneArrayStr = num2str(Done(1));
+    for j = 2:length(Done)
+        doneArrayStr = append(arrayStr,[',',num2str(Done(j))]);
+    end
+catch
+    % just move on
 end
 
 try
     jobArrayStr = num2str(notDone(1));
     for j = 2:length(notDone)
         jobArrayStr = append(jobArrayStr,[',',num2str(notDone(j))]);
-    end
-    
+        
+    end    
     
     if 1
     for j = 1:length(notDone)
