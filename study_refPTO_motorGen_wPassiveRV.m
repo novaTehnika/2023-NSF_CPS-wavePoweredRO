@@ -156,16 +156,22 @@ end
 
 
 %% %%%%%%%%%%%%   Save Data  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-timeStamp = datestr(now,'yyyymmddTHHMMSS'); % time in ISO8601
+timeStamp = datetime("now",'format','yyyy-MM-dd''T''HH:mm'); % time in ISO8601
 
-% Save data
-filename = ['data_refPTO_motorGen_wPassiveRV_', ...
-            datestr(now,'yyyymmdd'),'_',num2str(SS),'_' ...
-            num2str(iVar)];
-save(filename)
+filename = ['data_refPTO_motorGen_wPassiveRV', ...
+            '_',char(datetime("now",'format','yyyyMMdd')), ...
+            '_',num2str(SS,leadingZeros(999)), ...
+            '_',num2str(iVar,leadingZeros(nVar))];
+save(filename,'-v7.3')
 
 %% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 poolobj = gcp('nocreate'); delete(poolobj);
 
 return
+
+%% %%%%%%%%%%%%   Functions  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function str = leadingZeros(x)
+    str = ['%0',floor(log10(x)),'.f'];
+end

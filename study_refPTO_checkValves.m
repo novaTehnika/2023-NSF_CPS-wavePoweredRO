@@ -154,7 +154,7 @@ end
 
 % Save: time in ISO8601
 filename = ['data_refPTO_checkValves', ...
-            '-',datestr(now,'yyyymmddTHHMMSS')];
+            '-',datetime("now",'yyyymmdd')];
 save(filename,'-v7.3')
 
 %% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

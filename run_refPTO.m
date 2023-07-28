@@ -119,6 +119,7 @@ par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active,
 % q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
 
+par.w_c = (2500)*2*pi/60; % [(rpm) -> rad/s]
 
 
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -24,7 +24,7 @@ end
 files = dir;
 nfiles = size(files,1);
 Done = [];
-notDone = 1:675;
+notDone = 1:nVar;
 for j = 1:nfiles
 display(['file ',num2str(j),' of ',num2str(nfiles)])
     if strfind(files(j).name,"data_refPTO_accum")
@@ -40,7 +40,12 @@ end
 try 
     doneArrayStr = num2str(Done(1));
     for j = 2:length(Done)
-        doneArrayStr = append(arrayStr,[',',num2str(Done(j))]);
+        switch 1
+            case 1 
+                doneArrayStr = append(doneArrayStr,[',',num2str(Done(j))]);
+            case 2
+                doneArrayStr = append(doneArrayStr,[',',num2str(Done(j),['%0',floor(log10(nVar)),'.f'])]);
+        end
     end
 catch
     % just move on
