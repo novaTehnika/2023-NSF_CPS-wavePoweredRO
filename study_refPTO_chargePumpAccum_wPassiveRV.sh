@@ -17,5 +17,5 @@ SS = $SS; \
 study_refPTO_chargePumpAccum_wPassiveRV"
 
 # Commands to use
-# sbatch --export=SS=1 --array=1-140 ~/2023-NSF_CPS-wavePoweredRO/study_refPTO_chargePumpAccum_wPassiveRV.sh
+# sbatch --export=SS=1 --array=1-280 ~/2023-NSF_CPS-wavePoweredRO/study_refPTO_chargePumpAccum_wPassiveRV.sh
 # dos2unix  study_refPTO_chargePumpAccum_wPassiveRV.sh

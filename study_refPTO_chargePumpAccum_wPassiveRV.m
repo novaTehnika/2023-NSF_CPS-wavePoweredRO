@@ -82,7 +82,7 @@ addpath('Utilities')
 % Simulation timeframe
 par.Tramp = 250; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 500; %[s] end time of simulation
+par.tend = 2000; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -130,7 +130,7 @@ par.kv_rv = (0.0047)/sqrt(1e3); % [(L/s/kPa^0.5) -> m^3/s/Pa^0.5]
 par.Vc_h = (5000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
 par.Vc_ro = (5000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
 
-par.pc_l = 0.2e6; % [Pa] charge pressure
+par.pc_l = 0.15e6; % [Pa] charge pressure
 
 par.D_pm = (2200)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
 par.w_pm_max = (1750)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
@@ -140,11 +140,11 @@ par.cq = -6e6;
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % motor/pump displacement
-w_c = [2000 2250 2500 2750 3000 3250 3500]*2*pi/60; % [(rpm) -> rad/s]
+w_c = (1700:100:3000)*2*pi/60; % [(rpm) -> rad/s]
 nVar1 = numel(w_c);
 
 nVar2 = 20;
-Vc_l = 1e-3*logspace(log10(100),log10(5000),nVar2); % [(L) -> m^3]
+Vc_l = 1e-3*logspace(log10(100),log10(2000),nVar2); % [(L) -> m^3]
 
 [meshVar.w_c, meshVar.Vc_l] = meshgrid(w_c,Vc_l);
 w_c_mesh = meshVar.w_c(:);
