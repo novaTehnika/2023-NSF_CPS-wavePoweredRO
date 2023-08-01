@@ -169,9 +169,3 @@ save(filename,'-v7.3')
 poolobj = gcp('nocreate'); delete(poolobj);
 
 return
-
-%% %%%%%%%%%%%%   Functions  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function str = leadingZeros(x)
-    str = ['%0',floor(log10(x)),'.f'];
-end
