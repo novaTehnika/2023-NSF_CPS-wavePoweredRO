@@ -200,7 +200,7 @@ for i = 1:nI
     plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
     iLeg = iLeg+1;
     legLabels(iLeg) = convertCharsToStrings( ...
-        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000),2),'(L/s/kPa^{1/2})']);
+        ['k_v = ',num2str(kv(iiI(i))*1000*sqrt(1000),2),'(L/s/kPa^{1/2})']);
 end
 
 % plot real data
@@ -329,7 +329,7 @@ for i = 1:nI
     plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
     iLeg = iLeg+1;
     legLabels(iLeg) = convertCharsToStrings( ...
-        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000),2),'(L/s/kPa^{1/2})']);
+        ['k_v = ',num2str(kv(iiI(i))*1000*sqrt(1000),2),'(L/s/kPa^{1/2})']);
 end
 
 % plot real data
@@ -569,7 +569,7 @@ ax(iax).FontSize = fontSize-1;
 
 for i = 1:N
     iVar = iDom(iDomStart(i):iDomStart(i+1)-1);
-    p(iax,i) = plot(XaxisVar(iVar),sqrt(1e3)*kv_mesh(iVar));
+    p(iax,i) = plot(XaxisVar(iVar),1000*sqrt(1e3)*kv_mesh(iVar));
     p(iax,i).Color = [color(i,:)];
     p(iax,i).Marker = markerType(i);
     p(iax,i).MarkerSize = 5;

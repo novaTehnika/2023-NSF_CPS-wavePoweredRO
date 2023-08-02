@@ -193,7 +193,7 @@ return
 %% %%%%%%%%%%%%   PLOTTING  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % WEC pump efficiency
-X = kv*sqrt(1000);
+X = kv*1000*sqrt(1000);
 Y = Tsw;
 Z = eff_wecPump_2D; 
 inc = 250;
@@ -209,7 +209,7 @@ ylabel('switching period (s)');
 title('WEC-driven Pump Efficiency')
 
 % Absorbed power
-X = kv*sqrt(1000);
+X = kv*1000*sqrt(1000);
 Y = Tsw;
 Z = PP_WEC_2D*1e-3;
 
@@ -224,7 +224,7 @@ ylabel('switching period (s)');
 title('WEC Power Absorption (kW)')
 
 % Pump output power
-X = kv*sqrt(1000);
+X = kv*1000*sqrt(1000);
 Y = Tsw;
 Z = PP_wp_2D*1e-3;
 

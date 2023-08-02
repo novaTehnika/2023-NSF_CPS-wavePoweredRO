@@ -215,7 +215,7 @@ ax(iax).FontName = 'times';
 ax(iax).FontSize = fontSize-1;
 
 i = 1;
-p(iax,i) = plot(Vtotal_wPassiveRV,kv_wPassiveRV*sqrt(1000));
+p(iax,i) = plot(Vtotal_wPassiveRV,kv_wPassiveRV*1000*sqrt(1000));
 p(iax,i).Color = black;
 p(iax,i).Marker = markerType(i);
 p(iax,i).MarkerSize = 5;
@@ -223,7 +223,7 @@ p(iax,i).LineWidth = 1.5;
 hold on
 
 i = 2;
-p(iax,i) = plot(Vtotal_wActiveRV,kv_wActiveRV*sqrt(1000));
+p(iax,i) = plot(Vtotal_wActiveRV,kv_wActiveRV*1000*sqrt(1000));
 p(iax,i).Color = maroon;
 p(iax,i).Marker = markerType(i);
 p(iax,i).MarkerSize = 5;
