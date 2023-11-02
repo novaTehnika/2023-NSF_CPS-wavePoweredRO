@@ -176,7 +176,7 @@ for i = 1:nI
     plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
     iLeg = iLeg+1;
     legLabels(iLeg) = convertCharsToStrings( ...
-        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000)),'(L/s/kPa^{1/2})']);
+        ['k_v = ',num2str(kv(iiI(i))*1000*sqrt(1000)),'(L/s/kPa^{1/2})']);
 end
 
 % plot real data
@@ -290,7 +290,7 @@ for i = 1:nI
     plot(-99*[1, 0.5],-99*[1, 0.5],'k','LineStyle', linestyles{i});
     iLeg = iLeg+1;
     legLabels(iLeg) = convertCharsToStrings( ...
-        ['k_v = ',num2str(kv(iiI(i))*sqrt(1000)),'(L/s/kPa^{1/2})']);
+        ['k_v = ',num2str(kv(iiI(i))*1000*sqrt(1000)),'(L/s/kPa^{1/2})']);
 end
 
 % plot real data
