@@ -83,7 +83,7 @@ addpath('Utilities')
 % Simulation timeframe
 par.Tramp = 250; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 500; %[s] end time of simulation
+par.tend = 2000; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -113,7 +113,7 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-p_ro_nom = [5e6 7e6 8e6 7e6 7e6 7e6]; % [Pa]
+p_ro_nom = [4.28e6 6.11e6 8e6 6.07e6 8e6 8e6]; % [Pa]
 par.control.p_ro_nom = p_ro_nom(SS);
 par.duty_sv = 0;
 
@@ -127,6 +127,9 @@ par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active,
 % q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
 
+par.D_pm = (1000)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
+par.w_pm_max = (3600)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
+
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % total accumulator volume
 % ditribution between motor inlet and RO inlet
@@ -135,9 +138,9 @@ par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active,
 nVar1 = 15;
 Vtotal = 1e-3*logspace(log10(5e3),log10(20e3),nVar1);% [L->m^3] total accumulator volume
 nVar2 = 9;
-X = linspace(0.1,0.9,nVar2); % [-] accumulator volume distribution 1 - all at RO inlet, 0 - all at motor inlet
-nVar3 = 5;
-kv = 1/sqrt(1000)*logspace(log10(0.5e-3),log10(1e-2),nVar3);% [(l/s/kPa^0.5)->m^3/s/Pa^0.5] max valve coefficient for ripple control valve
+X = linspace(0.1,0.5,nVar2); % [-] accumulator volume distribution 1 - all at RO inlet, 0 - all at motor inlet
+nVar3 = 10;
+kv = 1/sqrt(1000)*logspace(log10(0.5e-3),log10(1.5e-2),nVar3);% [(l/s/kPa^0.5)->m^3/s/Pa^0.5] max valve coefficient for ripple control valve
 
 [meshVar.Vtotal, meshVar.X, meshVar.kv] = meshgrid(Vtotal,X,kv);
 Vtotal_mesh = meshVar.Vtotal(:);
@@ -186,13 +189,14 @@ end
 
 
 %% %%%%%%%%%%%%   Save Data  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-timeStamp = datestr(now,'yyyymmddTHHMMSS'); % time in ISO8601
+timeStamp = datetime("now",'format','yyyy-MM-dd''T''HH:mm'); % time in ISO8601
 
 % Save data
-filename = ['data_refPTO_accum_wPassiveRV_', ...
-            datestr(now,'yyyymmdd'),'_',num2str(SS),'_' ...
-            num2str(iVar)];
-save(filename)
+filename = ['data_refPTO_accum_wPassiveRV', ...
+            '_',char(datetime("now",'Format','yyyyMMdd')), ...
+            '_',num2str(SS,leadingZeros(999)), ...
+            '_',num2str(iVar,leadingZeros(nVar))];
+save(filename,'-v7.3')
 
 %% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

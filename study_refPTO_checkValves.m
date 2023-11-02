@@ -105,7 +105,8 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-% par.control.p_ro_nom = 7e6; % [Pa]
+% p_ro_nom = [4.28e6 6.11e6 8e6 6.07e6 8e6 8e6]; % [Pa]
+par.control.p_ro_nom = 6.11e6; % [Pa]
 
 % par.ERUconfig.present = 1;
 % par.ERUconfig.outlet = 1;
@@ -153,7 +154,7 @@ end
 
 % Save: time in ISO8601
 filename = ['data_refPTO_checkValves', ...
-            '-',datestr(now,'yyyymmddTHHMMSS')];
+            '-',datetime("now",'yyyymmdd')];
 save(filename,'-v7.3')
 
 %% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

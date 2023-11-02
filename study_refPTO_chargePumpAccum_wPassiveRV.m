@@ -1,11 +1,11 @@
-% study_refPTO_accum_wActiveRV.m script m-file
+% study_refPTO_chargePumpAccum_wPassiveRV.m script m-file
 % AUTHORS:
 % Jeremy Simmons (email: simmo536@umn.edu)
 % University of Minnesota
 % Department of Mechanical Engineering
 %
 % CREATION DATE:
-% 6/27/2023
+% 7/26/2023
 %
 % PURPOSE/DESCRIPTION:
 % This script performs parameter variation studies
@@ -14,9 +14,8 @@
 % The parameter initiallization functions are called within this
 % script before the sim_refPTO.m script is called.
 %
-% This specific script studies the size of high-pressure accumulators and
-% an active valve at the inlet to the RO module for managing pressure rate
-% of change.
+% This specific script studies the size of the low-pressure accumulators 
+% and speed of the charge pump for an assumed pump curve.
 %
 % This script is set up to be run as part of a SLURM job array. The
 % following lines are required before this script is called:
@@ -51,7 +50,7 @@
 %   statsTimeVar_cdf.m
 %
 % UPDATES:
-% 6/27/2023 - Created from study_refPTO_switchingValve.m
+% 7/18/2023 - Created from study_refPTO_accum_woRV.m
 %
 % Copyright (C) 2023  Jeremy W. Simmons II
 % 
@@ -122,65 +121,49 @@ par.ERUconfig.present = 1;
 par.ERUconfig.outlet = 1;
 
 par.rvConfig.included = 1; % RO inlet valve is 1 - present, 0 - absent
-par.rvConfig.active = (1)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
+par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
 % dp_rated = 1e5; % [Pa] 
-% q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
+% q_rated = 1000e-3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
+par.kv_rv = (0.0047)/sqrt(1e3); % [(L/s/kPa^0.5) -> m^3/s/Pa^0.5]
 
-par.D_pm = (1000)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
-par.w_pm_max = (3600)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
+par.Vc_h = (5000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
+par.Vc_ro = (5000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
+
+par.pc_l = 0.15e6; % [Pa] charge pressure
+
+par.D_pm = (2200)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
+par.w_pm_max = (1750)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
+
+par.cn = 5.5;
+par.cq = -6e6;
 
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% total accumulator volume
-% ditribution between motor inlet and RO inlet
-% max valve coefficient
+% motor/pump displacement
+w_c = (1700:100:3000)*2*pi/60; % [(rpm) -> rad/s]
+nVar1 = numel(w_c);
 
-nVar1 = 15;
-Vtotal = 1e-3*logspace(log10(5e3),log10(20e3),nVar1);% [L->m^3] total accumulator volume
-nVar2 = 9;
-X = linspace(0.1,0.5,nVar2); % [-] accumulator volume distribution 1 - all at RO inlet, 0 - all at motor inlet
-nVar3 = 10;
-kv = 1/sqrt(1000)*logspace(log10(0.5e-3),log10(1.5e-2),nVar3);% [(l/s/kPa^0.5)->m^3/s/Pa^0.5] max valve coefficient for ripple control valve
+nVar2 = 20;
+Vc_l = 1e-3*logspace(log10(100),log10(2000),nVar2); % [(L) -> m^3]
 
-[meshVar.Vtotal, meshVar.X, meshVar.kv] = meshgrid(Vtotal,X,kv);
-Vtotal_mesh = meshVar.Vtotal(:);
-X_mesh = meshVar.X(:);
-kv_mesh = meshVar.kv(:);
+[meshVar.w_c, meshVar.Vc_l] = meshgrid(w_c,Vc_l);
+w_c_mesh = meshVar.w_c(:);
+Vc_l_mesh = meshVar.Vc_l(:);
 
-nVar = length(Vtotal_mesh);
+nVar = length(w_c_mesh);
 
 saveSimData = 1; % save simulation data (1) or just output variables (0)
 
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% change design parameter
-par.kv_rv = kv_mesh(iVar);
-par.Vc_h = (1 - X_mesh(iVar))*Vtotal_mesh(iVar);
-par.Vc_ro = X_mesh(iVar)*Vtotal_mesh(iVar);
+% change design parameters
+par.w_c = w_c_mesh(iVar);
+par.Vc_l = Vc_l_mesh(iVar); % gas volume at charge pressure in LP accumulator bank
 
 % run simulation
 ticSIM = tic;
 out = sim_refPTO(y0,par);
 toc(ticSIM)
-
-% Calculate metrics
-it_vec = find(out.t>=par.tstart);
-% max rate of change in pressure
-% 97th percentile ratof change
-% power loss from valve
-% power loss through PRVs
-% permeate production
-% 
-q_permMean = mean(out.q_perm(it_vec));
-PP_WEC = mean(out.power.P_WEC(it_vec));
-PP_wp = mean(out.power.P_wp(it_vec));
-PP_rv = mean(out.power.P_rv(it_vec));
-PP_hPRV = mean(out.power.P_hPRV(it_vec));
-PP_roPRV = mean(out.power.P_roPRV(it_vec));
-dpdt_max = max(abs(out.dydt(it_vec,iyp_ro)));
-
-dist_dpdt = statsTimeVar_cdf(out.t(it_vec),abs(out.dydt(it_vec,iyp_ro)));
-dpdt_97 = dist_dpdt.xi(find(dist_dpdt.f > 0.97,1,'first'));
 
 if ~saveSimData
     clear out
@@ -192,7 +175,7 @@ end
 timeStamp = datetime("now",'format','yyyy-MM-dd''T''HH:mm'); % time in ISO8601
 
 % Save data
-filename = ['data_refPTO_accum_wActiveRV', ...
+filename = ['data_refPTO_chargePumpAccum_wPassiveRV', ...
             '_',char(datetime("now",'Format','yyyyMMdd')), ...
             '_',num2str(SS,leadingZeros(999)), ...
             '_',num2str(iVar,leadingZeros(nVar))];

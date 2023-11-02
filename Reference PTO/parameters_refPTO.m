@@ -106,7 +106,7 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     % power control unit
       % pump/motor
     par.D_pm = (1000)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
-    par.w_pm_max = (3600)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
+    par.w_pm_max = (1750)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
     par.w_pm_min = (1)/60*2*pi; % [(rpm) -> rad/s] minimum speed of motor
 
       % efficiency model coeffs. (McCandlish and Dory model)
@@ -131,10 +131,10 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     par.Vc_l = (3000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
     par.pc_l = 0.2e6; % [Pa] charge pressure
      % HPA at outlet of WEC-driven pump
-    par.Vc_h = (6000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
+    par.Vc_h = (5000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
     par.pc_h = 4e6; % [Pa] charge pressure
      % HPA at inlet to RO module
-    par.Vc_ro = (6000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
+    par.Vc_ro = (5000)*1e-3; % [(L) -> m^3] gas volume at charge pressure
     par.pc_ro = 4e6; % [Pa] charge pressure
 
     % Contoller Parameters
@@ -156,15 +156,16 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     % RO inlet valve for pressure ripple reduction
     par.rvConfig.included = 1; % RO inlet valve is 1 - present, 0 - absent
     par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
-    dp_rated = 1e5; % [Pa] 
-    q_rated = 50e-3; % [m^3/s]
-    par.kv_rv = q_rated/sqrt(dp_rated);
+    % dp_rated = 1e5; % [Pa] 
+    % q_rated = 50e-3; % [m^3/s]
+    % par.kv_rv = q_rated/sqrt(dp_rated);
+    par.kv_rv = (0.0047)/sqrt(1e3); % [(L/s/kPa^0.5) -> m^3/s/Pa^0.5]
     par.control.dpdt_ROmax = (10)*6894.76;
     
     % Charging system (Intake & Boost pump)
     par.cn = 7;
     par.cq = -1e6;
-    par.w_c = (3600)*2*pi/60; % [(rpm) -> rad/s]
+    par.w_c = (2000)*2*pi/60; % [(rpm) -> rad/s]
     par.eta_c = 0.7;  % pumping efficiency of pressure boost pump
     par.eta_m = 0.9;  % efficiency of charge pump motor
     % par.p_c = .65e6;

@@ -79,9 +79,9 @@ addpath('Utilities')
 %% %%%%%%%%%%%%   SIMULATION PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Simulation timeframe
-par.Tramp = 1; % [s] excitation force ramp period
+par.Tramp = 250; % [s] excitation force ramp period
 par.tstart = 0; %[s] start time of simulation
-par.tend = 1; %[s] end time of simulation
+par.tend = 2000; %[s] end time of simulation
 
 % Solver parameters
 % par.odeSolverRelTol = 1e-4; % Rel. error tolerance parameter for ODE solver
@@ -95,7 +95,6 @@ end
 % Sea State and Wave construction parameters
 Hs = [2.34 2.64 5.36 2.05 5.84 3.25];
 Tp = [7.31 9.86 11.52 12.71 15.23 16.5];
-SS = 2;
 par.wave.Hs = Hs(SS);
 par.wave.Tp = Tp(SS);
 par.WEC.nw = 1000; % num. of frequency components for harmonic superposition
@@ -112,7 +111,7 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-p_ro_nom = [5e6 7e6 8e6 7e6 7e6 7e6]; % [Pa]
+p_ro_nom = [4.28e6 6.11e6 8e6 6.07e6 8e6 8e6]; % [Pa]
 par.control.p_ro_nom = p_ro_nom(SS);
 par.duty_sv = 0;
 
@@ -121,16 +120,19 @@ par.ERUconfig.present = 1;
 par.ERUconfig.outlet = 1;
 
 par.rvConfig.included = 0; % RO inlet valve is 1 - present, 0 - absent
-par.rvConfig.active = (0)*par.included; % RO inlet valve is 1 - active, 0 - passive
+par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active, 0 - passive
 dp_rated = 1e5; % [Pa] 
 q_rated = 1000e-3; % [(lpm) -> m^3/s]
 par.kv_rv = q_rated/dp_rated;
 
+par.D_pm = (1000)*1e-6/(2*pi); % [(cc/rev) -> m^3/rad]  Motor displacement
+par.w_pm_max = (3600)/60*2*pi; % [(rpm) -> rad/s] maximum speed of motor
+
 %% %%%%%%%%%%%%   Study Variables  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % total accumulator volume
 
-nVar = 15;
-Vtotal = 1e-3*logspace(log10(5e3),log10(20e3),nVar);% [L->m^3] total accumulator volume
+nVar = 30;
+Vtotal = 1e-3*logspace(log10(5e3),log10(30e3),nVar);% [L->m^3] total accumulator volume
 
 saveSimData = 1; % save simulation data (1) or just output variables (0)
 
@@ -171,13 +173,14 @@ end
 
 
 %% %%%%%%%%%%%%   Save Data  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-timeStamp = datestr(now,'yyyymmddTHHMMSS'); % time in ISO8601
+timeStamp = datetime("now",'format','yyyy-MM-dd''T''HH:mm'); % time in ISO8601
 
 % Save data
-filename = ['data_refPTO_accum_woRV_', ...
-            datestr(now,'yyyymmdd'),'_',num2str(SS),'_' ...
-            num2str(iVar)];
-save(filename)
+filename = ['data_refPTO_accum_woRV', ...
+            '_',char(datetime("now",'Format','yyyyMMdd')), ...
+            '_',num2str(SS,leadingZeros(999)), ...
+            '_',num2str(iVar,leadingZeros(nVar))];
+save(filename,'-v7.3')
 
 %% %%%%%%%%%%%%   End Computations  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

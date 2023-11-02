@@ -4,7 +4,7 @@ nfiles = size(files,1);
 for j = 1:nfiles
 display(['file ',num2str(j),' of ',num2str(nfiles)])
     if strfind(files(j).name,"data_refPTO_accum_woRV")
-        load(files(j).name)
+        load(files(j).name,'-regexp','^(?!out)\w')
 
         q_permMean_array(iVar) = q_permMean;
         PP_WEC_array(iVar) = PP_WEC;
@@ -19,6 +19,58 @@ display(['file ',num2str(j),' of ',num2str(nfiles)])
 
 end
 
+%% Find indices for missing data files
+
+files = dir;
+nfiles = size(files,1);
+Done = [];
+notDone = 1:15;
+for j = 1:nfiles
+display(['file ',num2str(j),' of ',num2str(nfiles)])
+    if strfind(files(j).name,"data_refPTO_accum")
+        load(files(j).name,'-regexp','^(?!out)\w')
+        [r,c,val] = find(notDone==iVar);
+        notDone = [notDone(1:c-1), notDone(c+1:end)];
+        Done = [Done, iVar];
+
+    end
+
+end
+
+try 
+    doneArrayStr = num2str(Done(1));
+    for j = 2:length(Done)
+        doneArrayStr = append(arrayStr,[',',num2str(Done(j))]);
+    end
+catch
+    % just move on
+end
+
+try
+    jobArrayStr = num2str(notDone(1));
+    for j = 2:length(notDone)
+        jobArrayStr = append(jobArrayStr,[',',num2str(notDone(j))]);
+    end
+    
+    
+    if 1
+    for j = 1:length(notDone)
+        iVar = notDone(j);
+        q_permMean_array(iVar) = nan;
+        PP_WEC_array(iVar) = nan;
+        PP_wp_array(iVar) = nan;
+        PP_rv_array(iVar) = nan;
+        PP_hPRV_array(iVar) = nan;
+        PP_roPRV_array(iVar) = nan;
+        dpdt_max_array(iVar) = nan;
+        dpdt_97_array(iVar) = nan;
+
+    end
+    end
+
+catch
+    % just move on
+end
 
 %% Plot Maximum Rate of Change in Pressure as a function of total accumulator volume
 X = 1e3*Vtotal;
@@ -75,7 +127,7 @@ xlabel('volume (L)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
 ylabel('rate of change in pressure (kPa/s)', ...
 'Interpreter','latex','FontSize',fontSize-1,'fontname','Times')
-title([varTitle,' Without Ripple Control Valve'],...
+title([varTitle,' Without Ripple Control Valve: Sea State ',num2str(SS)],...
 'Interpreter','latex','FontSize',fontSize,'fontname','Times')
 
 leg = legend(legLabels);
@@ -86,4 +138,6 @@ leg.FontName = 'Times';
 set(leg, 'Location', 'best')
 % set(leg, 'Location', 'southoutside')
 % xlim([0 max(Vtotal)])
-ylim([0 1e-3*1.5*par.control.dpdt_ROmax])
+yLim = ylim;
+ylim([0 yLim(2)])
+% ylim([0 1e-3*1.5*par.control.dpdt_ROmax])

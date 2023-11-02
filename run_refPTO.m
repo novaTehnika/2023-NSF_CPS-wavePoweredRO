@@ -66,6 +66,7 @@ addpath('Reference PTO')
 addpath('Components')
 addpath('Sea States')
 addpath('Solvers')
+addpath('Utilities')
 %% %%%%%%%%%%%%   SIMULATION PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Simulation timeframe
@@ -101,7 +102,8 @@ initialConditionDefault_refPTO % default ICs, provides 'y0'
 %% Special modifications to base parameters
 % par.Sro = 3000; % [m^3]
 % par.D_WEC = 0.3;         % [m^3/rad] flap pump displacement
-par.control.p_ro_nom = 7e6; % [Pa]
+% p_ro_nom = [4.28e6 6.11e6 8e6 6.07e6 8e6 8e6]; % [Pa]
+par.control.p_ro_nom = 6.11e6; % [Pa]
 par.duty_sv = 0.0;
 
 % par.ERUconfig.present = 1;
@@ -117,6 +119,7 @@ par.rvConfig.active = (0)*par.rvConfig.included; % RO inlet valve is 1 - active,
 % q_rated = (100)*60/1e3; % [(lpm) -> m^3/s]
 % par.kv_rv = q_rated/dp_rated;
 
+par.w_c = (2500)*2*pi/60; % [(rpm) -> rad/s]
 
 
 %% %%%%%%%%%%%%   COLLECT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -205,11 +208,27 @@ legend('p_{l}')
 ax(3) = subplot(3,1,3);
 plot(out.t,1e-5*out.dydt(:,iyp_ro))
 hold on
-plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[1 1],'--k')
-plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[-1 -1],'--k')
+
+addpath('Utilities')
+dist_dpdt = statsTimeVar_cdf(out.t,abs(out.dydt(:,iyp_ro)));
+dpdt_97 = dist_dpdt.xi(find(dist_dpdt.f > 0.97,1,'first'));
+plot(out.t([1 end]),1e-5*dpdt_97*[1 1],'-.k')
+p(1) = plot(out.t([1 end]),1e-5*dpdt_97*[-1 -1],'-.k');
+p(1).HandleVisibility='off';
+
+dist_dpdt = statsTimeVar_cdf(out.t,abs(out.dydt(:,iyp_ro)));
+dpdt_99 = dist_dpdt.xi(find(dist_dpdt.f > 0.99,1,'first'));
+plot(out.t([1 end]),1e-5*dpdt_99*[1 1],'-.k')
+p(2) = plot(out.t([1 end]),1e-5*dpdt_99*[-1 -1],'--k');
+p(2).HandleVisibility='off';
+
+plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[1 1],'-r')
+p(3) = plot(out.t([1 end]),1e-5*out.par.control.dpdt_ROmax*[-1 -1],'-r');
+p(3).HandleVisibility='off';
+
 xlabel('Time (s)')
 ylabel('Rate of change in pressure (bar/s)')
-legend('dpdt_{ro}','target limit')
+legend('dpdt_{ro}','+-97th p-tile |dpdt_{ro}|','+-99th p-tile |dpdt_{ro}|','target limit')
 
 linkaxes(ax,'x');
 
