@@ -159,13 +159,13 @@ function par = parameters_refPTO(par,filenameCoeff,filenameRadSS)
     % dp_rated = 1e5; % [Pa] 
     % q_rated = 50e-3; % [m^3/s]
     % par.kv_rv = q_rated/sqrt(dp_rated);
-    par.kv_rv = (0.0047)/sqrt(1e3); % [(L/s/kPa^0.5) -> m^3/s/Pa^0.5]
+    par.kv_rv = (4.7)/sqrt(1e3)/1e3; % [(L/s/kPa^0.5) -> m^3/s/Pa^0.5]
     par.control.dpdt_ROmax = (10)*6894.76;
     
     % Charging system (Intake & Boost pump)
-    par.cn = 7;
-    par.cq = -1e6;
-    par.w_c = (2000)*2*pi/60; % [(rpm) -> rad/s]
+    par.cn = 5.5;
+    par.cq = -6e6;
+    par.w_c = (2500)*2*pi/60; % [(rpm) -> rad/s]
     par.eta_c = 0.7;  % pumping efficiency of pressure boost pump
     par.eta_m = 0.9;  % efficiency of charge pump motor
     % par.p_c = .65e6;
