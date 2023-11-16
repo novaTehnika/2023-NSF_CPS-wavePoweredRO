@@ -237,3 +237,11 @@ xticklabels("10^{"+string(xt')+"}");
 xlabel('flow coefficient (L/s/kPa^{1/2})');
 ylabel('switching period (s)');
 title('WEC-Driven Pump Power Output (kW)')
+
+%
+figure
+C2 = contour(X,Y,Z,'-k','ShowText','on');
+
+xlabel('flow coefficient (L/s/kPa^{1/2})');
+ylabel('switching period (s)');
+title('WEC-Driven Pump Power Output (kW)')
