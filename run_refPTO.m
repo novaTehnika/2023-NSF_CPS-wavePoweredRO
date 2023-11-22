@@ -328,8 +328,8 @@ xlabel('Time (s)')
 
 ax(5) = subplot(5,1,5);
 hold on
-plot(out.t,sqrt(1e3)*out.control.kv_ideal)
-plot(out.t,sqrt(1e3)*out.control.kv_rv)
+plot(out.t,1e3*sqrt(1e3)*out.control.kv_ideal)
+plot(out.t,1e3*sqrt(1e3)*out.control.kv_rv)
 legend('kv_ideal','kv_rv')
 ylabel('valve coefficient (L/s/kPa^{1/2})')
 xlabel('Time (s)')

@@ -167,13 +167,13 @@ figure
 xlabel('flow coefficient, low-pressure (L/s/kPa^{1/2})')
 title('Check Valve Sizing Study')
 yyaxis left
-semilogx(X*kv*1000/sqrt(1000),eff_wecPump)
+semilogx(X*kv*1000*sqrt(1000),eff_wecPump)
 hold on
 ylabel('WEC-driven pump efficiency')
 ylim([0 1])
 
 yyaxis right
 hold on
-semilogx(X*kv*1000/sqrt(1000),1e-3*p_min_wp)
+semilogx(X*kv*1000*sqrt(1000),1e-3*p_min_wp)
 ylabel('minimum pressure in pump (kPA)')
 
