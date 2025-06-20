@@ -36,13 +36,11 @@ function par = parameters_HIL(par)
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %% WEC-driven pump
-    par.WECpump.positiveLimit = (5)*0.0254; % [in -> m] positive extent of travel limit
-    par.WECpump.negativeLimit = -(5)*0.0254; % [in -> m] negative extent of travel limit
+    par.WECpump.positiveLimit = (9)*0.0254; % [in -> m] positive extent of travel limit
+    par.WECpump.negativeLimit = -(9)*0.0254; % [in -> m] negative extent of travel limit
 
-    d_rod_pump = (3.5)*0.0254; % [in -> m] diameter of rod
-    d_bore_pump = (7)*0.0254; % [in -> m] diameter of bore
-    par.WECpump.A_rod = pi/4*(d_bore_pump^2 - d_rod_pump^2);
-    par.WECpump.A_cap = pi/4*(d_bore_pump^2);
+    par.WECpump.positiveCtrlLimit = (5)*0.0254; % [in -> m] positive extent of travel limit for control
+    par.WECpump.negativeCtrlLimit = -(5)*0.0254; % [in -> m] negative extent of travel limit for control
 
     % conversion of angular to linear motion and force: reference scale vs.
     % HIL system
@@ -70,20 +68,64 @@ function par = parameters_HIL(par)
     par.actuator.A_rod = pi/4*(d_bore_act^2 - d_rod_act^2);
 
     % Danfoss H1T/Actuator Control
-    
+    par.H1T.D = 53.8; % [cc/rev]
+
      % cut-in duty (PWM) of electronic displacement control unit
-    par.H1T.posCutIn = 0.23;
-    par.H1T.negCutIn = 0.23;
+      % Pump 1
+    par.H1T.P1.posCutIn = 0.01;
+    par.H1T.P1.negCutIn = 0.01;
+
+      % Pump 2
+    par.H1T.P2.posCutIn = 0.01;
+    par.H1T.P2.negCutIn = 0.01;
 
     % Position control gains
-    par.H1T.kp = 1;
-    par.H1T.ki = 1;
-    par.H1T.kd = 0;
+    ku = (1)*1.21;
+    Tu = 0.3255;
+    switch 7
+        case 1 % P
+            par.H1T.kp = ku*(0.5);
+            par.H1T.ki = ku/Tu*(0);
+            par.H1T.kd = ku*Tu*(0);
+        case 2 % PI
+            par.H1T.kp = ku*(0.45);
+            par.H1T.ki = ku/Tu*(0.54);
+            par.H1T.kd = ku*Tu*(0);
+        case 3 % PD
+            par.H1T.kp = ku*(0.8);
+            par.H1T.ki = ku/Tu*(0);
+            par.H1T.kd = ku*Tu*(0.1);
+        case 4 % PID 1 ("classic")
+            par.H1T.kp = ku*(0.6);
+            par.H1T.ki = ku/Tu*(1.2);
+            par.H1T.kd = ku*Tu*(0.075);
+        case 5 % PID 2 (Pessen Integral Rule)
+            par.H1T.kp = ku*(0.7);
+            par.H1T.ki = ku/Tu*(1.75);
+            par.H1T.kd = ku*Tu*(0.105);
+        case 6 % PID 3 ("some overshoot")
+            par.H1T.kp = ku*(0.3333);
+            par.H1T.ki = ku/Tu*(0.6667);
+            par.H1T.kd = ku*Tu*(0.1111);
+        case 7 % PID 4 ("no overshoot")
+            par.H1T.kp = ku*(0.2);
+            par.H1T.ki = ku/Tu*(0.4);
+            par.H1T.kd = ku*Tu*(0.06667);
+    end
+
+    % fractional displacement bias
+    par.H1T.P1.fBias = 0.5; % 0 to 0.5
+    par.H1T.P2.fBias = 0.5; % 0 to 0.5
 
     %% Charge Pump Control
     % Speed limits of charge pump
     par.charge.nMax = 3600; % [rpm] upper limit
     par.charge.nMin = 0; % [rpm] lower limit
+
+    % Experimental fit pump curve
+    par.charge.cn = 209.3; % [Pa/(rev/s)^(1/2)]
+    par.charge.cq = -9.58e10; % [Pa/(m^3/s)^(1/2)]
+    
     % Pressure control gains
     par.charge.kp = 1;
     par.charge.ki = 1;
@@ -94,8 +136,8 @@ function par = parameters_HIL(par)
     par.gen.nMax = 3600; % [rpm] upper limit
     par.gen.nMin = 0; % [rpm] lower limit
     % Pressure control gains
-    par.gen.kp = 1;
-    par.gen.ki = 1;
+    par.gen.kp = (5e-4)*60/(2*pi); % [(rad/s)/Pa -> rpm/Pa]
+    par.gen.ki = 0;
     par.gen.kd = 0;
 
     %% ERU Control

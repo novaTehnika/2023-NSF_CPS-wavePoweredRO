@@ -103,7 +103,7 @@ WEC_rho.CoderInfo.StorageClass = 'ExportedGlobal';
 WEC_g = Simulink.Parameter(par.WEC.g);
 WEC_g.CoderInfo.StorageClass = 'ExportedGlobal';
 
-WEC_ICs = Simulink.Parameter([0,0,zeros(1,par.WEC.ny_rad)]);
+WEC_ICs = Simulink.Parameter(zeros(1,par.WEC.ny_rad));
 WEC_ICs.CoderInfo.StorageClass = 'ExportedGlobal';
 
 %% Wave
@@ -133,6 +133,12 @@ HIL_WECpump_positiveLimit.CoderInfo.StorageClass = 'ExportedGlobal';
 HIL_WECpump_negativeLimit = Simulink.Parameter(par.WECpump.negativeLimit);
 HIL_WECpump_negativeLimit.CoderInfo.StorageClass = 'ExportedGlobal';
 
+HIL_WECpump_positiveCtrlLimit = Simulink.Parameter(par.WECpump.positiveCtrlLimit);
+HIL_WECpump_positiveCtrlLimit.CoderInfo.StorageClass = 'ExportedGlobal';
+
+HIL_WECpump_negativeCtrlLimit = Simulink.Parameter(par.WECpump.negativeCtrlLimit);
+HIL_WECpump_negativeCtrlLimit.CoderInfo.StorageClass = 'ExportedGlobal';
+
  % Actuator Control
   % Actuator/Actuator Control
 HIL_act_A_cap = Simulink.Parameter(par.actuator.A_cap);
@@ -142,11 +148,26 @@ HIL_act_A_rod = Simulink.Parameter(par.actuator.A_rod);
 HIL_act_A_rod.CoderInfo.StorageClass = 'ExportedGlobal';
 
   % Danfoss H1T/Actuator Control
-HIL_H1T_posCutIn = Simulink.Parameter(par.H1T.posCutIn);
-HIL_H1T_posCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+HIL_H1T_D = Simulink.Parameter(par.H1T.D);
+HIL_H1T_D.CoderInfo.StorageClass = 'ExportedGlobal';
 
-HIL_H1T_negCutIn = Simulink.Parameter(par.H1T.negCutIn);
-HIL_H1T_negCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+HIL_H1T_P1posCutIn = Simulink.Parameter(par.H1T.P1.posCutIn);
+HIL_H1T_P1posCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+
+HIL_H1T_P1negCutIn = Simulink.Parameter(par.H1T.P1.negCutIn);
+HIL_H1T_P1negCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+
+HIL_H1T_P1fBias = Simulink.Parameter(par.H1T.P1.fBias);
+HIL_H1T_P1fBias.CoderInfo.StorageClass = 'ExportedGlobal';
+
+HIL_H1T_P2posCutIn = Simulink.Parameter(par.H1T.P2.posCutIn);
+HIL_H1T_P2posCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+
+HIL_H1T_P2negCutIn = Simulink.Parameter(par.H1T.P2.negCutIn);
+HIL_H1T_P2negCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+
+HIL_H1T_P2fBias = Simulink.Parameter(par.H1T.P2.fBias);
+HIL_H1T_P2fBias.CoderInfo.StorageClass = 'ExportedGlobal';
 
 HIL_H1T_kp = Simulink.Parameter(par.H1T.kp);
 HIL_H1T_kp.CoderInfo.StorageClass = 'ExportedGlobal';
@@ -164,6 +185,9 @@ HIL_charge_nMax.CoderInfo.StorageClass = 'ExportedGlobal';
 
 HIL_charge_nMin = Simulink.Parameter(par.charge.nMin);
 HIL_charge_nMin.CoderInfo.StorageClass = 'ExportedGlobal';
+
+HIL_charge_cn = Simulink.Parameter(par.charge.cn);
+HIL_charge_cn.CoderInfo.StorageClass = 'ExportedGlobal';
 
 HIL_charge_kp = Simulink.Parameter(par.charge.kp);
 HIL_charge_kp.CoderInfo.StorageClass = 'ExportedGlobal';
@@ -208,16 +232,9 @@ HIL_ERU_ki.CoderInfo.StorageClass = 'ExportedGlobal';
 HIL_ERU_kd = Simulink.Parameter(par.ERU.kd);
 HIL_ERU_kd.CoderInfo.StorageClass = 'ExportedGlobal';
 
-%% %%%%%%%%% FUNCTIONS %%%%%%%%%%%%%%%%%%%%
-%     function Aerr = areaErrFun(w,A,Atarget,w_ea,wmin,wmax)
-%         if w_ea < wmin 
-%             Aerr = abs(w_ea-wmin)*1e1 + ((Atarget-A(1))/Atarget)^2;
-%         elseif w_ea > wmax
-%             Aerr = abs(w_ea-wmax)*1e1 + ((Atarget-A(end))/Atarget)^2;
-%         else
-%             Aerr = ((Atarget-interp1(w,A,w_ea,'spline'))/Atarget)^2;
-%         end
-%     end
+%% runtime tunable parameters
+% motionOnOff = Simulink.Parameter(0);
+% motionOnOff.CoderInfo.StorageClass = 'ExportedGlobal';
 
     function S_w = PiersonSpec(w,par)
         % Based on Falnes (2002) "Ocean Waves and Oscillating Systems:..."
