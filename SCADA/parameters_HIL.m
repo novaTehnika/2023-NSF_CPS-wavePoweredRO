@@ -80,9 +80,9 @@ function par = parameters_HIL(par)
     par.H1T.P2.negCutIn = 0.01;
 
     % Position control gains
-    ku = (1)*1.21;
+    ku = (0.05)*1.21;
     Tu = 0.3255;
-    switch 7
+    switch 1
         case 1 % P
             par.H1T.kp = ku*(0.5);
             par.H1T.ki = ku/Tu*(0);

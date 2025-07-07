@@ -151,11 +151,11 @@ HIL_act_A_rod.CoderInfo.StorageClass = 'ExportedGlobal';
 HIL_H1T_D = Simulink.Parameter(par.H1T.D);
 HIL_H1T_D.CoderInfo.StorageClass = 'ExportedGlobal';
 
-HIL_H1T_posCutIn = Simulink.Parameter(par.H1T.P1.posCutIn);
-HIL_H1T_posCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+HIL_H1T_P1posCutIn = Simulink.Parameter(par.H1T.P1.posCutIn);
+HIL_H1T_P1posCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
 
-HIL_H1T_negCutIn = Simulink.Parameter(par.H1T.P1.negCutIn);
-HIL_H1T_negCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
+HIL_H1T_P1negCutIn = Simulink.Parameter(par.H1T.P1.negCutIn);
+HIL_H1T_P1negCutIn.CoderInfo.StorageClass = 'ExportedGlobal';
 
 HIL_H1T_P1fBias = Simulink.Parameter(par.H1T.P1.fBias);
 HIL_H1T_P1fBias.CoderInfo.StorageClass = 'ExportedGlobal';
